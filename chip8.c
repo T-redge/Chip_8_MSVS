@@ -3,8 +3,9 @@
 //Loading rom into memory
 bool load_rom(uint8_t* memory)
 {
-	const char* file_name = "rom/4flags.ch8";
+	const char* file_name = "rom/IBMLogo.ch8";
 	bool success = true;
+	uint8_t* buffer = NULL;
 
 	FILE* file_open = fopen(file_name, "rb");
 	if (!file_open) {
@@ -15,14 +16,20 @@ bool load_rom(uint8_t* memory)
 	long long file_size = get_file_size(file_open);
 
 
-	uint8_t* buffer = malloc(file_size * sizeof(uint8_t));
-	while (fread(buffer, sizeof(buffer[0]), file_size, file_open) != 0)
-		;
+	buffer = malloc(file_size * sizeof(uint8_t));
+	if (buffer)
+	{
+		*buffer = '\0';
 
-	for (long long i = 0; i < file_size; ++i)
-		memory[512 + i] = buffer[i];
-
-	free(buffer);
+		#pragma warning(suppress : 6387)
+		while (fread(buffer, sizeof(buffer), file_size, file_open) != 0)
+			;
+		for (long long i = 0; i < file_size; ++i)
+			memory[512 + i] = buffer[i];
+		free(buffer);
+	}
+	
+	#pragma warning(suppress : 6387)
 	fclose(file_open);
 	return success;
 }

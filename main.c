@@ -1,7 +1,7 @@
 /*
 *	CHIP_8 Interpretor + Rendering Capabilities
 */
-# include "SDLwindow.h"
+#include "SDLwindow.h"
 
 typedef struct Stack Stack;
 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 	bool running = true;
 	SDL_Event e;
 	while (running) {
-		event_handler(&e, &running);
+		event_handler(&e, &running, keys);
 		/*******************************************/
 		/*	    Decoding Chip 8 Opcodes        */
 		/*******************************************/

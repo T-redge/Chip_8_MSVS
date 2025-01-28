@@ -35,11 +35,93 @@ bool init()
 
 	return true;
 }
-void event_handler(SDL_Event* event, bool* flag)
+void event_handler(SDL_Event* event, bool* flag, uint8_t* keys)
 {
 	while (SDL_PollEvent(event) != 0) {
-		if (event->type == SDL_QUIT) {
+		switch (event->type) {
+		case SDL_QUIT:
 			*flag = false;
+			break;
+		case SDL_KEYDOWN:
+			switch (event->key.keysym.scancode) {
+			case SDL_SCANCODE_1:
+				keys[0x0] = 1;
+			case SDL_SCANCODE_2:
+				keys[0x1] = 1;
+			case SDL_SCANCODE_3:
+				keys[0x2] = 1;
+			case SDL_SCANCODE_4:
+				keys[0x3] = 1;
+			case SDL_SCANCODE_Q:
+				keys[0x4] = 1;
+			case SDL_SCANCODE_W:
+				keys[0x5] = 1;
+			case SDL_SCANCODE_E:
+				keys[0x6] = 1;
+			case SDL_SCANCODE_R:
+				keys[0x7] = 1;
+			case SDL_SCANCODE_A:
+				keys[0x8] = 1;
+			case SDL_SCANCODE_S:
+				keys[0x9] = 1;
+			case SDL_SCANCODE_D:
+				keys[0xA] = 1;
+			case SDL_SCANCODE_F:
+				keys[0xB] = 1;
+			case SDL_SCANCODE_Z:
+				keys[0xC] = 1;
+			case SDL_SCANCODE_X:
+				keys[0xD] = 1;
+			case SDL_SCANCODE_C:
+				keys[0xE] = 1;
+			case SDL_SCANCODE_V:
+				keys[0xF] = 1;
+			default:
+				printf("Scancode not recognised!\n");
+				break;
+			}
+			break;
+		case SDL_KEYUP:
+			switch (event->key.keysym.scancode) {
+			case SDL_SCANCODE_1:
+				keys[0x0] = 0;
+			case SDL_SCANCODE_2:
+				keys[0x1] = 0;
+			case SDL_SCANCODE_3:
+				keys[0x2] = 0;
+			case SDL_SCANCODE_4:
+				keys[0x3] = 0;
+			case SDL_SCANCODE_Q:
+				keys[0x4] = 0;
+			case SDL_SCANCODE_W:
+				keys[0x5] = 0;
+			case SDL_SCANCODE_E:
+				keys[0x6] = 0;
+			case SDL_SCANCODE_R:
+				keys[0x7] = 0;
+			case SDL_SCANCODE_A:
+				keys[0x8] = 0;
+			case SDL_SCANCODE_S:
+				keys[0x9] = 0;
+			case SDL_SCANCODE_D:
+				keys[0xA] = 0;
+			case SDL_SCANCODE_F:
+				keys[0xB] = 0;
+			case SDL_SCANCODE_Z:
+				keys[0xC] = 0;
+			case SDL_SCANCODE_X:
+				keys[0xD] = 0;
+			case SDL_SCANCODE_C:
+				keys[0xE] = 0;
+			case SDL_SCANCODE_V:
+				keys[0xF] = 0;
+			default:
+				printf("Scancode not recognised!\n");
+				break;
+			}
+			break;
+		default:
+			break;
 		}
 	}
 }
