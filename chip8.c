@@ -3,16 +3,13 @@
 //Loading rom into memory
 bool load_rom(uint8_t* memory)
 {
-	const char* file_name = "rom/IBMLogo.ch8";
+	const char* file_name = "rom/flags.ch8";
 	bool success = true;
 	uint8_t* buffer = NULL;
 
 	FILE* file_open = fopen(file_name, "rb");
-	if (!file_open) {
-		perror("File opening failed\n");
-		success = false;
-	}
-
+	if (file_open == 0)
+		return EXIT_FAILURE;
 	long long file_size = get_file_size(file_open);
 
 
@@ -21,7 +18,7 @@ bool load_rom(uint8_t* memory)
 	{
 		*buffer = '\0';
 
-		#pragma warning(suppress : 6387)
+		
 		while (fread(buffer, sizeof(buffer), file_size, file_open) != 0)
 			;
 		for (long long i = 0; i < file_size; ++i)
@@ -29,7 +26,6 @@ bool load_rom(uint8_t* memory)
 		free(buffer);
 	}
 	
-	#pragma warning(suppress : 6387)
 	fclose(file_open);
 	return success;
 }
@@ -44,25 +40,6 @@ long long get_file_size(FILE* file)
 	printf("Size of file is: %lld bytes\n", tmp);
 	rewind(file);
 
-	return tmp;
-}
-
-//Stack for chip8
-void push(Stack* st, uint16_t new_address)
-{
-	if (st->top == STACK_SIZE) {
-		printf("Stack Overflow\n");
-	}
-	st->mem_address[st->top++] = new_address;
-	printf("Top of stack: %X\n", st->mem_address[st->top-1]);
-}
-uint16_t pop(Stack* st)
-{
-	if (st->top == 0) {
-		printf("Stack Underflow\n");
-	}
-	uint16_t tmp = st->mem_address[st->top-1];
-	printf("Address: %X\n", tmp);
 	return tmp;
 }
 
@@ -91,7 +68,7 @@ void opcodeANNN(uint16_t opcode, uint16_t* i_reg)
 }
 void opcode6XNN(uint16_t opcode, uint8_t* var_reg)
 {
-	uint16_t vx;
+	uint8_t vx;
 	uint8_t tmp;
 	vx = (opcode & 0x0F00) >> 8;
 	tmp = opcode & 0x00FF;
@@ -220,7 +197,7 @@ void opcode9XY0(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg)
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 	printf("var_reg[%X]: %X\n", vy, var_reg[vy]);
 }
-void opcode2NNN(uint16_t opcode, uint16_t* p_c, Stack* stack)
+void opcode2NNN(uint16_t opcode, uint16_t* p_c, Stack *stack)
 {
 	uint16_t tmp = opcode & 0x0FFF;
 
@@ -229,7 +206,7 @@ void opcode2NNN(uint16_t opcode, uint16_t* p_c, Stack* stack)
 	*p_c = tmp;
 	printf("Jumping to: %X\n", tmp);
 }
-void opcodeEE(uint16_t* p_c, Stack* stack)
+void opcodeEE(uint16_t* p_c, Stack *stack)
 {
 	*p_c = pop(stack);
 }
@@ -279,14 +256,18 @@ void opcode8XY4(uint16_t opcode, uint8_t* var_reg)
 	uint8_t vy = (opcode & 0x00F0) >> 4;
 
 	printf("vx: %X, vy: %X\n", vx, vy);
+	printf("Var_reg[%X]: %X, Var_reg[%X]: %X\n", vx, var_reg[vx], vy, var_reg[vy]);
 
-	uint16_t tmp = var_reg[vx] + var_reg[vy];
-	if (tmp > 255)
+	
+	
+
+	if (var_reg[vx] + var_reg[vy] > 0xFF)
 		var_reg[15] = 1;
 	else
 		var_reg[15] = 0;
 
 	var_reg[vx] += var_reg[vy];
+
 
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
@@ -349,11 +330,12 @@ void opcodeFX65(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t* memo
 
 	uint16_t tmp = i_reg;
 
-	for (uint16_t x = 0; x <= vx; ++x) {
+	for (uint16_t x = 0; x < vx; ++x) {
 		var_reg[x] = memory[tmp];
-		printf("var_reg[%d]: %X\t", x, tmp);
-		++tmp;
+		printf("var_reg[%X]: %X\t", x, memory[tmp]);
 		printf("i_reg: %X\n", tmp);
+		++tmp;
+		
 	}
 	printf("\n");
 }
@@ -363,7 +345,7 @@ void opcodeFX55(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t* memo
 
 	uint16_t tmp = i_reg;
 
-	for (uint16_t x = 0; x <= vx; ++x) {
+	for (uint16_t x = 0; x < vx; ++x) {
 		memory[tmp] = var_reg[x];
 		printf("var_reg[%d]: %X\t", x, tmp);
 		++tmp;
@@ -392,9 +374,10 @@ void opcodeFX1E(uint16_t opcode, uint8_t* var_reg, uint16_t* i_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
-	printf("I_reg: %X\n", *i_reg);
+	
 
 	*i_reg += var_reg[vx];
+	printf("I_reg: %X\n", *i_reg);
 
 }
 void opcodeBNNN(uint16_t opcode, uint8_t* var_reg, uint16_t* p_c)

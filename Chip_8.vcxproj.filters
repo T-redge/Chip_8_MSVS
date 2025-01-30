@@ -15,6 +15,9 @@
     <Filter Include="Source Files\CHIP_8">
       <UniqueIdentifier>{f250220b-8304-4886-b5c4-4d3c7598a1b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\STACK">
+      <UniqueIdentifier>{52369dfd-af79-4c3e-bf9f-50278dc3ce81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -26,6 +29,9 @@
     <ClCompile Include="chip8.c">
       <Filter>Source Files\CHIP_8</Filter>
     </ClCompile>
+    <ClCompile Include="Stack.c">
+      <Filter>Source Files\STACK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SDLwindow.h">
@@ -33,6 +39,9 @@
     </ClInclude>
     <ClInclude Include="chip8.h">
       <Filter>Source Files\CHIP_8</Filter>
+    </ClInclude>
+    <ClInclude Include="Stack.h">
+      <Filter>Source Files\STACK</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

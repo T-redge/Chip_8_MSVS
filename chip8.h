@@ -1,8 +1,4 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
+#include "Stack.h"
 
 #ifndef CHIP_8_INSTRUCTIONS_H
 #define CHIP_8_INSTRUCTIONS_H
@@ -10,18 +6,7 @@
 #define SCREEN_WIDTH 64
 #define SCREEN_HEIGHT 32
 
-/********************************************/
-/*Stack Functions			
-/********************************************/
-#define STACK_SIZE 16
-typedef struct Stack
-{
-	int top;
-	uint16_t mem_address[STACK_SIZE];
-}Stack;
-
-void push(Stack* st, uint16_t new_address);		//Pushes address to top of stack
-uint16_t pop(Stack* st);				//Returns address from subroutine
+				//Returns address from subroutine
 /******************************************/
 /*Loading .ch8 file functions
 /******************************************/
@@ -33,9 +18,9 @@ long long get_file_size(FILE* file);			//Aquires file size for memory allocation
 uint16_t get_opcode(uint8_t* memory, uint16_t* p_c);									//Gets operator code from memory
 
 void opcodeEO(uint8_t display[][SCREEN_HEIGHT]);									//Sets Display to 0's
-void opcodeEE(uint16_t* p_c, Stack* stack);										//Returns from address at top of stack
+void opcodeEE(uint16_t* p_c, Stack *stack);										//Returns from address at top of stack
 void opcode1NNN(uint16_t opcode, uint16_t* p_c);									//Sets p_c to NNN
-void opcode2NNN(uint16_t opcode, uint16_t* p_c, Stack* stack);								//Pushes current p_c to stack and jumps to NNN
+void opcode2NNN(uint16_t opcode, uint16_t* p_c, Stack *stack);								//Pushes current p_c to stack and jumps to NNN
 void opcode3XNN(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg);							//skips one instruction if vx == NN
 void opcode4XNN(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg);							//skips one instruction if vx != NN
 void opcode5XY0(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg);							//skips one instruction if vx == vy

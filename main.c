@@ -3,8 +3,6 @@
 */
 #include "SDLwindow.h"
 
-typedef struct Stack Stack;
-
 #define MEMSIZE 4096
 #define MEMFONT 80
 
@@ -14,7 +12,7 @@ int main(int argc, char* argv[])
 	if (argv[0]);
 	uint8_t memory[MEMSIZE];
 	uint8_t display[SCREEN_WIDTH][SCREEN_HEIGHT] = { 0 };
-	uint8_t var_reg[16] = {0};
+	uint8_t var_reg[16] = { 0 };
 	uint8_t keys[16];
 	uint8_t delay_timer;
 	uint8_t sound_timer;
@@ -69,12 +67,14 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < SCREEN_HEIGHT; ++i)
 		for (int j = 0; j < SCREEN_WIDTH; ++j)
 			display[j][i] = 0;
+
 	//Init Rand
-	srand( (unsigned)time(NULL) );
+	srand((unsigned)time(NULL));
 	int rand_var = (rand() % (255 - 0 + 1)) + 0;
 
 	//Init Stack
-	Stack stack = { .top = 0, .mem_address = 0};
+	Stack stack;
+	init_stack(&stack);
 
 	//Init rest
 	delay_timer = 0;
@@ -83,7 +83,12 @@ int main(int argc, char* argv[])
 	i_reg = 0;
 	opcode = 0;
 	pitch = 0;
-	
+	for (int i = 0; i < 611; i++) {
+		printf("Memory[%d]: %X\t", 512 + i, memory[512 + i]);
+		if ((i % 5 == 0) && (i > 0))
+			printf("\n");
+	}
+	printf("\n");
 	/*******************************************/
 	/*		Program Loop               */
 	/*******************************************/
@@ -94,6 +99,18 @@ int main(int argc, char* argv[])
 		/*******************************************/
 		/*	    Decoding Chip 8 Opcodes        */
 		/*******************************************/
+		printf("\n");
+		printf("I_reg: %X\n", i_reg);
+		printf("p_c: %d\n", p_c);
+		int j = 0;
+		for (int i = 0; i < 16; i++) {
+			printf("Var_reg[%X]: %X\t", i, var_reg[i]);
+			++j;
+			if (j % 5 == 0)
+				printf("\n");
+		}
+		
+		printf("\n");
 		opcode = get_opcode(memory, &p_c);
 		printf("Opcode: %X\n", opcode);
 		switch (opcode & 0xF000) {
