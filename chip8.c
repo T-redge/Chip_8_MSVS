@@ -287,15 +287,19 @@ void opcode8XY5(uint16_t opcode, uint8_t* var_reg)
 void opcode8XY6(uint16_t opcode, uint8_t* var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
+	
 
-	var_reg[15] = var_reg[vx] & 0x1;
-
-	printf("%X\n", var_reg[0xF]);
+	uint8_t shift_x = var_reg[vx] & 0x1;
+	printf("%X\n", var_reg[vx]);
+	printf("%X\n", shift_x);
 
 	var_reg[vx] >>= 1;
 
+	printf("%X\n", var_reg[vx]);
+	printf("%X\n", var_reg[vx] & 0x1);
 
-
+	var_reg[15] = shift_x;
+	printf("%X", var_reg[15]);
 }
 void opcode8XY7(uint16_t opcode, uint8_t* var_reg)
 {
@@ -315,12 +319,25 @@ void opcode8XY7(uint16_t opcode, uint8_t* var_reg)
 void opcode8XYE(uint16_t opcode, uint8_t* var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
+	
+	uint8_t mask = (1 << 7);
 
-	var_reg[15] = var_reg[vx] & 0x1;
+	printf("%X\n", mask);
 
-	printf("%X\n", var_reg[0xF]);
+	uint8_t shift_x = var_reg[vx] & mask;
+	printf("%X\n", var_reg[vx]);
+	printf("%X\n", shift_x);
 
 	var_reg[vx] <<= 1;
+
+	printf("%X\n", var_reg[vx]);
+	printf("%X\n", var_reg[vx] & mask);
+
+	if (shift_x == 0x80)
+		var_reg[15] = 1;
+	else
+		var_reg[15] = 0;
+	printf("%X", var_reg[15]);
 }
 void opcodeFX65(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t* memory)
 {
