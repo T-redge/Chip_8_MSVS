@@ -225,7 +225,7 @@ void opcode8XY1(uint16_t opcode, uint8_t* var_reg)
 	printf("vx: %X, vy: %X\n", vx, vy);
 
 	var_reg[vx] |= var_reg[vy];
-
+	//var_reg[15] = 0;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
 void opcode8XY2(uint16_t opcode, uint8_t* var_reg)
@@ -236,7 +236,7 @@ void opcode8XY2(uint16_t opcode, uint8_t* var_reg)
 	printf("vx: %X, vy: %X\n", vx, vy);
 
 	var_reg[vx] &= var_reg[vy];
-
+	//var_reg[15] = 0;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
 void opcode8XY3(uint16_t opcode, uint8_t* var_reg)
@@ -247,44 +247,42 @@ void opcode8XY3(uint16_t opcode, uint8_t* var_reg)
 	printf("vx: %X, vy: %X\n", vx, vy);
 
 	var_reg[vx] ^= var_reg[vy];
-
+	//var_reg[15] = 0;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
 void opcode8XY4(uint16_t opcode, uint8_t* var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 	uint8_t vy = (opcode & 0x00F0) >> 4;
-
-	printf("vx: %X, vy: %X\n", vx, vy);
-	printf("Var_reg[%X]: %X, Var_reg[%X]: %X\n", vx, var_reg[vx], vy, var_reg[vy]);
-
-	
-	
-
-	if (var_reg[vx] + var_reg[vy] > 0xFF)
-		var_reg[15] = 1;
-	else
-		var_reg[15] = 0;
+	uint16_t addition = var_reg[vx] + var_reg[vy];
 
 	var_reg[vx] += var_reg[vy];
 
-
-	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
+	if (addition > 255)
+		var_reg[15] = 1;
+	else
+		var_reg[15] = 0;
 }
 void opcode8XY5(uint16_t opcode, uint8_t* var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 	uint8_t vy = (opcode & 0x00F0) >> 4;
 
-	printf("vx: %X, vy: %X\n", vx, vy);
+	printf("Var_reg[%X]: %X Var_reg[%X]: %X\n", vx, var_reg[vx], vy, var_reg[vy]);
 
-	if (var_reg[vx] >= var_reg[vy])
-		var_reg[15] = 1;
-	else
-		var_reg[15] = 0;
-
+	uint8_t test_x = var_reg[vx];
+	uint8_t test_y = var_reg[vy];
+	
 	var_reg[vx] -= var_reg[vy];
+
+	if (test_x < test_y)
+		var_reg[15] = 0;
+	else
+		var_reg[15] = 1;
+	
+	
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
+	
 }
 void opcode8XY6(uint16_t opcode, uint8_t* var_reg)
 {
@@ -306,12 +304,12 @@ void opcode8XY7(uint16_t opcode, uint8_t* var_reg)
 
 	printf("vx: %X, vy: %X\n", vx, vy);
 
-	if (var_reg[vy] >= var_reg[vx])
-		var_reg[15] = 1;
-	else
-		var_reg[15] = 0;
-
 	var_reg[vx] = var_reg[vy] - var_reg[vx];
+
+	if (var_reg[vy] < var_reg[vx])
+		var_reg[15] = 0;
+	else
+		var_reg[15] = 1;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
 void opcode8XYE(uint16_t opcode, uint8_t* var_reg)
