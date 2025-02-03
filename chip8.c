@@ -1,48 +1,67 @@
 #include "chip8.h"
 
 //Loading rom into memory
-bool load_rom(uint8_t* memory)
+int load_rom(uint8_t* memory)
 {
-	const char* file_name = "rom/flags.ch8";
-	bool success = true;
-	uint8_t* buffer = NULL;
+	const int8_t* file_name = "IBMLogo.ch8";
+	const int8_t* file_mode = "rb";
 
-	FILE* file_open = fopen(file_name, "rb");
-	if (file_open == 0)
+
+	FILE* file_ptr = fopen(file_name, file_mode);
+	if (!file_ptr) {
+		printf("Error opening the file\n");
 		return EXIT_FAILURE;
-	long long file_size = get_file_size(file_open);
-
-
-	buffer = malloc(file_size * sizeof(uint8_t));
-	if (buffer)
-	{
-		*buffer = '\0';
-
-		
-		while (fread(buffer, sizeof(buffer), file_size, file_open) != 0)
-			;
-		for (long long i = 0; i < file_size; ++i)
-			memory[512 + i] = buffer[i];
-		free(buffer);
 	}
-	
-	fclose(file_open);
-	return success;
+
+	uint8_t file_size = (uint8_t)get_file_size(file_ptr);
+
+	uint8_t* buffer = create_buffer(file_size);
+	fill_buffer(file_ptr, file_size, buffer);
+
+	for (int i = 0; i < file_size; ++i)
+		memory[512 + i] = buffer[i];
+
+	if (fclose(file_ptr) != 0) {
+		printf("Error closing the file\n");
+		return EXIT_FAILURE;
+
+	}
+	return EXIT_SUCCESS;
 }
-long long get_file_size(FILE* file)
+uint8_t* create_buffer(uint8_t size)
 {
-	fseek(file, sizeof(uint8_t), SEEK_END);
-#ifdef WIN32
-	long long tmp = _ftelli64(file);
-#else 
-	long long tmp = ftell(file);
-#endif
-	printf("Size of file is: %lld bytes\n", tmp);
-	rewind(file);
+	uint8_t* tmp = (uint8_t*)malloc(size * sizeof(uint8_t));
+	if (tmp == NULL) {
+		printf("Failed to allocate memory");
+		exit(EXIT_FAILURE);
+	}
+	for (int i = 0; i < size; ++i)
+		tmp[i] = 0;
 
 	return tmp;
 }
+uint64_t get_file_size(FILE* file_ptr)
+{
+	fseek(file_ptr, sizeof(uint8_t), SEEK_END);
+#ifdef WIN32
+	uint64_t tmp = _ftelli64(file);
+#else 
+	uint64_t tmp = ftell(file_ptr);
+#endif
+	printf("Size of file is: %lld bytes\n", tmp);
+	rewind(file_ptr);
 
+	return tmp;
+}
+void fill_buffer(FILE* file_ptr, uint8_t file_size, uint8_t* buffer)
+{
+	uint64_t bytes_read;
+	while ((bytes_read = fread(buffer, sizeof(uint8_t), file_size, file_ptr))) {
+
+		buffer[bytes_read] = '\0';
+
+	}
+}
 //chip8 instructions
 uint16_t get_opcode(uint8_t* memory, uint16_t* p_c)
 {
@@ -446,17 +465,87 @@ void opcodeFX18(uint16_t opcode, uint8_t* var_reg, uint8_t sound_timer)
 
 	sound_timer = var_reg[vx];
 }
-/*void opcodeFX29(uint16_t opcode, uint16_t *i_reg)
+void opcodeFX29(uint16_t opcode, uint16_t *i_reg, uint8_t *var_reg, uint8_t* memory)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
-}*/
-/*void opcodeFX0A(uint16_t opcode, uint8_t *var_reg, uint16_t *p_c, uint8_t *keys)
-{
-	*p_c -= 2;
+	printf("Memory: %X Ireg: %d Var_reg: %X\n", memory[512], *i_reg, var_reg[vx]);
 
+	switch (var_reg[vx]) {
+	case 0x0:
+		break;
+	case 0x1:
+		break;
+	case 0x2:
+		break;
+	case 0x3:
+		break;
+	case 0x4:
+		break;
+	case 0x5:
+		break;
+	case 0x6:
+		break;
+	case 0x7:
+		break;
+	case 0x8:
+		break;
+	case 0x9:
+		break;
+	case 0xA:
+		break;
+	case 0xB:
+		break;
+	case 0xC:
+		break;
+	case 0xD:
+		break;
+	case 0xE:
+		break;
+	case 0xF:
+		break;
+	default:
+		break;
+	}
+}
+void opcodeFX0A(uint16_t opcode, uint8_t *var_reg, uint16_t *p_c, uint8_t *keys)
+{
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 
-}*/
+	if (keys[0x0] == 1)
+		var_reg[vx] = 0x0;
+	else if (keys[0x1] == 1)
+		var_reg[vx] = 0x1;
+	else if (keys[0x2] == 1)
+		var_reg[vx] = 0x2;
+	else if (keys[0x3] == 1)
+		var_reg[vx] = 0x3;
+	else if (keys[0x4] == 1)
+		var_reg[vx] = 0x4;
+	else if (keys[0x5] == 1)
+		var_reg[vx] = 0x5;
+	else if (keys[0x6] == 1)
+		var_reg[vx] = 0x6;
+	else if (keys[0x7] == 1)
+		var_reg[vx] = 0x7;
+	else if (keys[0x8] == 1)
+		var_reg[vx] = 0x8;
+	else if (keys[0x9] == 1)
+		var_reg[vx] = 0x9;
+	else if (keys[0xA] == 1)
+		var_reg[vx] = 0xA;
+	else if (keys[0xB] == 1)
+		var_reg[vx] = 0xB;
+	else if (keys[0xC] == 1)
+		var_reg[vx] = 0xC;
+	else if (keys[0xD] == 1)
+		var_reg[vx] = 0xD;
+	else if (keys[0xE] == 1)
+		var_reg[vx] = 0xE;
+	else if (keys[0xF] == 1)
+		var_reg[vx] = 0xF;
+	else
+		*p_c -= 2;
+}
 
 void update_timers(uint8_t sound_timer, uint8_t delay_timer)
 {

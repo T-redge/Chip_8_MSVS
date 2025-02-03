@@ -6,12 +6,14 @@
 #define SCREEN_WIDTH 64
 #define SCREEN_HEIGHT 32
 
-				//Returns address from subroutine
+
 /******************************************/
 /*Loading .ch8 file functions
 /******************************************/
-bool load_rom(uint8_t* memory);				//loads rom into memory
-long long get_file_size(FILE* file);			//Aquires file size for memory allocation
+int load_rom(uint8_t* memory);
+uint8_t* create_buffer(uint8_t size);
+uint64_t get_file_size(FILE* file_ptr);
+void fill_buffer(FILE* file_ptr, uint8_t file_size, uint8_t* buffer);
 /******************************************/
 /*Chip_8 Instructions
 /******************************************/
@@ -45,11 +47,12 @@ void opcodeEXA1(uint16_t opcode, uint8_t* keys, uint16_t* p_c);								//Skips o
 void opcodeFX07(uint16_t opcode, uint8_t* var_reg, uint8_t delay_timer);						//Sets var_reg[vx] to current value of delay_timer
 void opcodeFX15(uint16_t opcode, uint8_t* var_reg, uint8_t delay_timer);						//Sets delay_timer to value of var_reg[vx]
 void opcodeFX18(uint16_t opcode, uint8_t* var_reg, uint8_t sound_timer);						//Sets sound_timer to value of var_reg[vx]
+void opcodeFX29(uint16_t opcode, uint16_t* i_reg, uint8_t* var_reg, uint8_t* memory);
 void opcodeFX33(uint16_t opcode, uint8_t* memory, uint16_t i_reg, uint8_t* var_reg);					//Binary coded decimal conversion
 void opcodeFX55(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t* memory);					//Loads var_reg into memory
 void opcodeFX65(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t* memory);					//Loads memory into v[0] to v[X]
 void opcodeFX1E(uint16_t opcode, uint8_t* var_reg, uint16_t* i_reg);							//Adds var_reg[vx] to i_reg
-//void opcodeFX0A(uint16_t opcode, BYTE *var_reg, uint16_t *p_c, BYTE *keys);						//Gets key
+void opcodeFX0A(uint16_t opcode, uint8_t* var_reg, uint16_t* p_c, uint8_t* keys);						//Gets key
 
 void update_timers(uint8_t sound_timer, uint8_t delay_timer);
 #endif//CHIP_8_INSTRUCTIONS_H

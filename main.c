@@ -50,8 +50,8 @@ int main(int argc, char* argv[])
 	/*******************************************/
 	/*		 Loading Rom		   */
 	/*******************************************/
-	if (!load_rom(memory)) {
-		printf("Failed to load rom into memory!\n");
+	if (load_rom(memory) != 0) {
+		printf("load_rom function failed\n");
 		return EXIT_FAILURE;
 	}
 	/*******************************************/
@@ -83,11 +83,7 @@ int main(int argc, char* argv[])
 	i_reg = 0;
 	opcode = 0;
 	pitch = 0;
-	for (int i = 0; i < 611; i++) {
-		printf("Memory[%d]: %X\t", 512 + i, memory[512 + i]);
-		if ((i % 5 == 0) && (i > 0))
-			printf("\n");
-	}
+
 	printf("\n");
 	/*******************************************/
 	/*		Program Loop               */
@@ -218,6 +214,9 @@ int main(int argc, char* argv[])
 			case 0x15:
 				opcodeFX15(opcode, var_reg, delay_timer);
 				break;
+			case 0x29:
+				opcodeFX29(opcode, &i_reg, var_reg, memory);
+				break;
 			case 0x33:
 				opcodeFX33(opcode, memory, i_reg, var_reg);
 				break;
@@ -226,6 +225,9 @@ int main(int argc, char* argv[])
 				break;
 			case 0x65:
 				opcodeFX65(opcode, var_reg, i_reg, memory);
+				break;
+			case 0x0A:
+				opcodeFX0A(opcode, var_reg, &p_c, keys);
 				break;
 			case 0x1E:
 				opcodeFX1E(opcode, var_reg, &i_reg);
