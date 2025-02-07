@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
 		case 0xF000:
 			switch (opcode & 0xFF) {
 			case 0x07:
-				opcodeFX07(opcode, var_reg, &delay_timer);
+				opcodeFX07(opcode, var_reg, delay_timer);
 				//running = false;
 				break;
 			case 0x15:
@@ -261,21 +261,22 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 		
-		if (dt > 3) {
+		if (dt > 0.0004) {
 			printf("dt =  %f\n", dt);
-			//last_loop_time = current_time;
+			last_loop_time = current_time;
 			if (delay_timer > 0)
-				--delay_timer;
+				--delay_timer; 
 			if (sound_timer > 0)
 				--sound_timer;
+			if (draw_flag == true) {
+				render(display, &pixels, pitch);
+				draw_flag = false;
+			}
 		}
 
-		if (draw_flag == true) {
-			render(display, &pixels, pitch);
-			draw_flag = false;
-		}
-		if (loop_count > 700)
-			running = false;
+		
+		//if (loop_count > 700)
+			//running = false;
 	} 
 	quit();
 	return EXIT_SUCCESS;

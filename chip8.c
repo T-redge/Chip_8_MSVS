@@ -309,19 +309,19 @@ void opcodeCXNN(uint16_t opcode, uint8_t* var_reg, int  random_number)
 }
 void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t display[][SCREEN_HEIGHT], uint8_t* memory, bool *draw_flag)
 {
-	uint16_t vx, vy, rows, coord_x, coord_y, sprite_data;
+	uint16_t vx, vy, rows, coord_x, coord_y, sprite_data, tmp_i;
 	vx = (opcode & 0x0F00) >> 8;
 	vy = (opcode & 0x00F0) >> 4;
 	rows = opcode & 0x000F;
-
-	coord_x = var_reg[vx] % 64;
-	coord_y = var_reg[vy] % 32;
+	tmp_i = i_reg;
+	coord_x = var_reg[vx];
+	coord_y = var_reg[vy];
 
 	var_reg[15] = 0;
 	printf("vx: %X, vy: %X, rows: %X, coord_x: %X, coord_y: %X\n", vx, vy, rows, coord_x, coord_y);
 
 	for (int i = 0; i < rows; ++i) {
-		sprite_data = memory[i_reg + i];
+		sprite_data = memory[tmp_i + i];
 		printf("Sprite_data: %X\t", sprite_data);
 
 		int xpixelinv = 7;
@@ -332,19 +332,13 @@ void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t displ
 			int mask = (0x80 >> xpixel);
 
 			printf("%X\t", mask);
-			if (sprite_data & mask) {
+			if ((sprite_data & mask)) {
 				int x = (coord_x + xpixel);
 				int y = (coord_y + i);
-				if (display[x][y] == 1)
-					var_reg[15] = 1;
-				display[x][y] ^= 1;
+					if (display[x][y] == 1)
+						var_reg[15] = 1;
+					display[x][y] ^= 1;
 			}
-		}
-		printf("\n");
-	}
-	for (int y = 0; y < 32; ++y) {
-		for (int x = 0; x < 64; ++x) {
-			printf("%d", display[x][y]);
 		}
 		printf("\n");
 	}
@@ -377,7 +371,7 @@ void opcodeFX15(uint16_t opcode, uint8_t* var_reg, uint8_t *delay_timer)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 
-	delay_timer = var_reg[vx];
+	*delay_timer = var_reg[vx];
 }
 void opcodeFX18(uint16_t opcode, uint8_t* var_reg, uint8_t sound_timer)
 {
