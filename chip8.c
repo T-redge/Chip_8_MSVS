@@ -1,66 +1,41 @@
 #include "chip8.h"
 
 //Loading rom into memory
-int load_rom(uint8_t* memory)
+void load_rom(uint8_t* memory)
 {
-	const int8_t* file_name = "IBMLogo.ch8";
+	const int8_t* file_name = "rom/quirks.ch8";
 	const int8_t* file_mode = "rb";
 
+	long long file_size;
+	uint8_t* buffer;
 
 	FILE* file_ptr = fopen(file_name, file_mode);
-	if (!file_ptr) {
-		printf("Error opening the file\n");
-		return EXIT_FAILURE;
-	}
+	if (file_ptr != NULL) {
+		fseek(file_ptr, 0, SEEK_END);
+		#ifdef WIN32
+		file_size = _ftelli64(file);
+		#else
+		file_size = ftell(file_ptr);
+		#endif		
+		rewind(file_ptr);
 
-	uint8_t file_size = (uint8_t)get_file_size(file_ptr);
+		buffer = (uint8_t*)malloc(sizeof(uint8_t) * file_size);
+		if (buffer == NULL) {
+			printf("Out of memory!\n");
+			exit(EXIT_FAILURE);
+		}
 
-	uint8_t* buffer = create_buffer(file_size);
-	fill_buffer(file_ptr, file_size, buffer);
+		fread(buffer, sizeof(uint8_t), file_size, file_ptr);
 
-	for (int i = 0; i < file_size; ++i)
-		memory[512 + i] = buffer[i];
-
-	if (fclose(file_ptr) != 0) {
-		printf("Error closing the file\n");
-		return EXIT_FAILURE;
-
-	}
-	return EXIT_SUCCESS;
-}
-uint8_t* create_buffer(uint8_t size)
-{
-	uint8_t* tmp = (uint8_t*)malloc(size * sizeof(uint8_t));
-	if (tmp == NULL) {
-		printf("Failed to allocate memory");
+		for (int i = 0; i < file_size; i++) {
+			memory[512 + i] = buffer[i];
+		}
+	} else {
+		printf("Error: File does not exits!\n");
 		exit(EXIT_FAILURE);
 	}
-	for (int i = 0; i < size; ++i)
-		tmp[i] = 0;
-
-	return tmp;
-}
-uint64_t get_file_size(FILE* file_ptr)
-{
-	fseek(file_ptr, sizeof(uint8_t), SEEK_END);
-#ifdef WIN32
-	uint64_t tmp = _ftelli64(file);
-#else 
-	uint64_t tmp = ftell(file_ptr);
-#endif
-	printf("Size of file is: %lld bytes\n", tmp);
-	rewind(file_ptr);
-
-	return tmp;
-}
-void fill_buffer(FILE* file_ptr, uint8_t file_size, uint8_t* buffer)
-{
-	uint64_t bytes_read;
-	while ((bytes_read = fread(buffer, sizeof(uint8_t), file_size, file_ptr))) {
-
-		buffer[bytes_read] = '\0';
-
-	}
+	fclose(file_ptr);
+	free(buffer);
 }
 //chip8 instructions
 uint16_t get_opcode(uint8_t* memory, uint16_t* p_c)
@@ -73,80 +48,16 @@ uint16_t get_opcode(uint8_t* memory, uint16_t* p_c)
 	return tmp;
 }
 
-void opcodeEO(uint8_t display[][SCREEN_HEIGHT])
+void opcode00E0(uint8_t display[][SCREEN_HEIGHT], bool *draw_flag)
 {
 	for (int y = 0; y < 32; ++y)
 		for (int x = 0; x < 64; ++x)
 			display[x][y] = 0;
+	*draw_flag = true;
 }
-void opcodeANNN(uint16_t opcode, uint16_t* i_reg)
+void opcode00EE(uint16_t* p_c, Stack *stack)
 {
-	uint16_t tmp;
-	tmp = opcode & 0x0FFF;
-	*i_reg = tmp;
-}
-void opcode6XNN(uint16_t opcode, uint8_t* var_reg)
-{
-	uint8_t vx;
-	uint8_t tmp;
-	vx = (opcode & 0x0F00) >> 8;
-	tmp = opcode & 0x00FF;
-
-	var_reg[vx] = tmp;
-}
-void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t display[][SCREEN_HEIGHT], uint8_t* memory)
-{
-	uint16_t vx, vy, rows, coord_x, coord_y, sprite_data;
-	vx = (opcode & 0x0F00) >> 8;
-	vy = (opcode & 0x00F0) >> 4;
-	rows = opcode & 0x000F;
-
-	coord_x = var_reg[vx & 63];
-	coord_y = var_reg[vy & 31];
-
-	var_reg[15] = 0;
-
-	printf("vx: %X, vy: %X, rows: %X, coord_x: %X, coord_y: %X\n", vx, vy, rows, coord_x, coord_y);
-
-	for (int i = 0; i < rows; ++i) {
-		sprite_data = memory[i_reg + i];
-		printf("Sprite_data: %X\t", sprite_data);
-
-		int xpixelinv = 7;
-		int xpixel = 0;
-
-		printf("\n");
-		for (xpixel = 0; xpixel < 8; ++xpixel, --xpixelinv) {
-			int mask = 1 << xpixelinv;
-
-			printf("%X\t", mask);
-			if (sprite_data & mask) {
-				int x = coord_x + xpixel;
-				int y = coord_y + i;
-				if (display[x][y] == 1)
-					var_reg[15] = 1;
-				display[x][y] ^= 1;
-			}
-		}
-		printf("\n");
-	}
-	for (int y = 0; y < 32; ++y) {
-		for (int x = 0; x < 64; ++x) {
-			printf("%d", display[x][y]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
-void opcode7XNN(uint16_t opcode, uint8_t* var_reg)
-{
-	uint8_t vx, tmp;
-	vx = (opcode & 0x0F00) >> 8;
-	tmp = opcode & 0x00FF;
-
-	var_reg[vx] += tmp;
-
-	printf("vx: %X, tmp: %X, var_reg[%X]: %X\n", vx, tmp, vx, var_reg[vx]);
+	*p_c = pop(stack);
 }
 void opcode1NNN(uint16_t opcode, uint16_t* p_c)
 {
@@ -154,6 +65,15 @@ void opcode1NNN(uint16_t opcode, uint16_t* p_c)
 	tmp = opcode & 0x0FFF;
 
 	*p_c = tmp;
+}
+void opcode2NNN(uint16_t opcode, uint16_t* p_c, Stack *stack)
+{
+	uint16_t tmp = opcode & 0x0FFF;
+
+	push(stack, *p_c);
+
+	*p_c = tmp;
+	printf("Jumping to: %X\n", tmp);
 }
 void opcode3XNN(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg)
 {
@@ -201,33 +121,24 @@ void opcode5XY0(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg)
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 	printf("var_reg[%X]: %X\n", vy, var_reg[vy]);
 }
-void opcode9XY0(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg)
+void opcode6XNN(uint16_t opcode, uint8_t* var_reg)
 {
-	uint8_t vx = (opcode & 0x0F00) >> 8;
-	uint8_t vy = (opcode & 0x00F0) >> 4;
+	uint8_t vx;
+	uint8_t tmp;
+	vx = (opcode & 0x0F00) >> 8;
+	tmp = opcode & 0x00FF;
 
-	if (var_reg[vx] != var_reg[vy]) {
-		printf("Skipping\n");
-		*p_c += 2;
-	}
-
-	printf("vx: %X\n", vx);
-	printf("vy: %X\n", vy);
-	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
-	printf("var_reg[%X]: %X\n", vy, var_reg[vy]);
+	var_reg[vx] = tmp;
 }
-void opcode2NNN(uint16_t opcode, uint16_t* p_c, Stack *stack)
+void opcode7XNN(uint16_t opcode, uint8_t* var_reg)
 {
-	uint16_t tmp = opcode & 0x0FFF;
+	uint8_t vx, tmp;
+	vx = (opcode & 0x0F00) >> 8;
+	tmp = opcode & 0x00FF;
 
-	push(stack, *p_c);
+	var_reg[vx] += tmp;
 
-	*p_c = tmp;
-	printf("Jumping to: %X\n", tmp);
-}
-void opcodeEE(uint16_t* p_c, Stack *stack)
-{
-	*p_c = pop(stack);
+	printf("vx: %X, tmp: %X, var_reg[%X]: %X\n", vx, tmp, vx, var_reg[vx]);
 }
 void opcode8XY0(uint16_t opcode, uint8_t* var_reg)
 {
@@ -244,7 +155,7 @@ void opcode8XY1(uint16_t opcode, uint8_t* var_reg)
 	printf("vx: %X, vy: %X\n", vx, vy);
 
 	var_reg[vx] |= var_reg[vy];
-	//var_reg[15] = 0;
+	var_reg[15] = 0;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
 void opcode8XY2(uint16_t opcode, uint8_t* var_reg)
@@ -255,7 +166,7 @@ void opcode8XY2(uint16_t opcode, uint8_t* var_reg)
 	printf("vx: %X, vy: %X\n", vx, vy);
 
 	var_reg[vx] &= var_reg[vy];
-	//var_reg[15] = 0;
+	var_reg[15] = 0;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
 void opcode8XY3(uint16_t opcode, uint8_t* var_reg)
@@ -266,7 +177,7 @@ void opcode8XY3(uint16_t opcode, uint8_t* var_reg)
 	printf("vx: %X, vy: %X\n", vx, vy);
 
 	var_reg[vx] ^= var_reg[vy];
-	//var_reg[15] = 0;
+	var_reg[15] = 0;
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
 }
 void opcode8XY4(uint16_t opcode, uint8_t* var_reg)
@@ -358,61 +269,26 @@ void opcode8XYE(uint16_t opcode, uint8_t* var_reg)
 		var_reg[15] = 0;
 	printf("%X", var_reg[15]);
 }
-void opcodeFX65(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t* memory)
+void opcode9XY0(uint16_t opcode, uint16_t* p_c, uint8_t* var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
+	uint8_t vy = (opcode & 0x00F0) >> 4;
 
-	uint16_t tmp = i_reg;
-
-	for (uint16_t x = 0; x < vx; ++x) {
-		var_reg[x] = memory[tmp];
-		printf("var_reg[%X]: %X\t", x, memory[tmp]);
-		printf("i_reg: %X\n", tmp);
-		++tmp;
-		
+	if (var_reg[vx] != var_reg[vy]) {
+		printf("Skipping\n");
+		*p_c += 2;
 	}
-	printf("\n");
-}
-void opcodeFX55(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t* memory)
-{
-	uint8_t vx = (opcode & 0x0F00) >> 8;
 
-	uint16_t tmp = i_reg;
-
-	for (uint16_t x = 0; x < vx; ++x) {
-		memory[tmp] = var_reg[x];
-		printf("var_reg[%d]: %X\t", x, tmp);
-		++tmp;
-		printf("i_reg: %X\n", tmp);
-	}
-	printf("\n");
-}
-void opcodeFX33(uint16_t opcode, uint8_t* memory, uint16_t i_reg, uint8_t* var_reg)
-{
-	uint8_t vx = (opcode & 0x0F00) >> 8;
-	printf("var_reg[%X]: %d\n", vx, var_reg[vx]);
-
-
-	uint8_t tmp_one = var_reg[vx] / (10 * 10);
-	uint8_t tmp_two = (var_reg[vx] % (10 * 10)) / 10;
-	uint8_t tmp_three = (var_reg[vx] % 10) / 1;
-	printf("Tmp_one: %d\n", tmp_one);
-	printf("Tmp_two: %d\n", tmp_two);
-	printf("Tmp_three: %d\n", tmp_three);
-
-	memory[i_reg] = tmp_one;
-	memory[i_reg + 1] = tmp_two;
-	memory[i_reg + 2] = tmp_three;
-}
-void opcodeFX1E(uint16_t opcode, uint8_t* var_reg, uint16_t* i_reg)
-{
-	uint8_t vx = (opcode & 0x0F00) >> 8;
+	printf("vx: %X\n", vx);
+	printf("vy: %X\n", vy);
 	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
-	
-
-	*i_reg += var_reg[vx];
-	printf("I_reg: %X\n", *i_reg);
-
+	printf("var_reg[%X]: %X\n", vy, var_reg[vy]);
+}
+void opcodeANNN(uint16_t opcode, uint16_t* i_reg)
+{
+	uint16_t tmp;
+	tmp = opcode & 0x0FFF;
+	*i_reg = tmp;
 }
 void opcodeBNNN(uint16_t opcode, uint8_t* var_reg, uint16_t* p_c)
 {
@@ -430,6 +306,50 @@ void opcodeCXNN(uint16_t opcode, uint8_t* var_reg, int  random_number)
 	uint8_t nn = opcode & 0x00FF;
 
 	var_reg[vx] = nn & random_number;
+}
+void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t display[][SCREEN_HEIGHT], uint8_t* memory, bool *draw_flag)
+{
+	uint16_t vx, vy, rows, coord_x, coord_y, sprite_data;
+	vx = (opcode & 0x0F00) >> 8;
+	vy = (opcode & 0x00F0) >> 4;
+	rows = opcode & 0x000F;
+
+	coord_x = var_reg[vx] % 64;
+	coord_y = var_reg[vy] % 32;
+
+	var_reg[15] = 0;
+	printf("vx: %X, vy: %X, rows: %X, coord_x: %X, coord_y: %X\n", vx, vy, rows, coord_x, coord_y);
+
+	for (int i = 0; i < rows; ++i) {
+		sprite_data = memory[i_reg + i];
+		printf("Sprite_data: %X\t", sprite_data);
+
+		int xpixelinv = 7;
+		int xpixel = 0;
+
+		printf("\n");
+		for (xpixel = 0; xpixel < 8; ++xpixel, --xpixelinv) {
+			int mask = (0x80 >> xpixel);
+
+			printf("%X\t", mask);
+			if (sprite_data & mask) {
+				int x = (coord_x + xpixel);
+				int y = (coord_y + i);
+				if (display[x][y] == 1)
+					var_reg[15] = 1;
+				display[x][y] ^= 1;
+			}
+		}
+		printf("\n");
+	}
+	for (int y = 0; y < 32; ++y) {
+		for (int x = 0; x < 64; ++x) {
+			printf("%d", display[x][y]);
+		}
+		printf("\n");
+	}
+	*draw_flag = true;
+	printf("\n");
 }
 void opcodeEX9E(uint16_t opcode, uint8_t* keys, uint16_t* p_c)
 {
@@ -453,7 +373,7 @@ void opcodeFX07(uint16_t opcode, uint8_t* var_reg, uint8_t delay_timer)
 
 	var_reg[vx] = delay_timer;
 }
-void opcodeFX15(uint16_t opcode, uint8_t* var_reg, uint8_t delay_timer)
+void opcodeFX15(uint16_t opcode, uint8_t* var_reg, uint8_t *delay_timer)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 
@@ -507,6 +427,52 @@ void opcodeFX29(uint16_t opcode, uint16_t *i_reg, uint8_t *var_reg, uint8_t* mem
 		break;
 	}
 }
+void opcodeFX33(uint16_t opcode, uint8_t* memory, uint16_t i_reg, uint8_t* var_reg)
+{
+	uint8_t vx = (opcode & 0x0F00) >> 8;
+	printf("var_reg[%X]: %d\n", vx, var_reg[vx]);
+
+
+	uint8_t tmp_one = var_reg[vx] / (10 * 10);
+	uint8_t tmp_two = (var_reg[vx] % (10 * 10)) / 10;
+	uint8_t tmp_three = (var_reg[vx] % 10) / 1;
+	printf("Tmp_one: %d\n", tmp_one);
+	printf("Tmp_two: %d\n", tmp_two);
+	printf("Tmp_three: %d\n", tmp_three);
+
+	memory[i_reg] = tmp_one;
+	memory[i_reg + 1] = tmp_two;
+	memory[i_reg + 2] = tmp_three;
+}
+void opcodeFX55(uint16_t opcode, uint8_t* var_reg, uint16_t *i_reg, uint8_t* memory, bool old)
+{
+	uint8_t vx = (opcode & 0x0F00) >> 8;
+	printf("Vx: %X\n", vx);
+	uint16_t tmp = *i_reg;
+	printf("tmp: %X\n", tmp);
+	for (int i = 0; i <= vx; ++i) {
+		memory[*i_reg] = var_reg[i];
+		++*i_reg;
+	}
+	
+	if (!old) {
+		*i_reg = tmp;
+	}
+}
+void opcodeFX65(uint16_t opcode, uint8_t* var_reg, uint16_t *i_reg, uint8_t* memory, bool old)
+{
+	uint8_t vx = (opcode & 0x0F00) >> 8;
+	uint16_t tmp = *i_reg;
+	printf("tmp: %X\n", tmp);
+	for (int i = 0; i <= vx; ++i) {
+		var_reg[i] = memory[*i_reg];
+		++*i_reg;
+	}
+	
+	if (!old) {
+		*i_reg = tmp;
+	}
+}
 void opcodeFX0A(uint16_t opcode, uint8_t *var_reg, uint16_t *p_c, uint8_t *keys)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
@@ -546,11 +512,13 @@ void opcodeFX0A(uint16_t opcode, uint8_t *var_reg, uint16_t *p_c, uint8_t *keys)
 	else
 		*p_c -= 2;
 }
-
-void update_timers(uint8_t sound_timer, uint8_t delay_timer)
+void opcodeFX1E(uint16_t opcode, uint8_t* var_reg, uint16_t* i_reg)
 {
-	if (delay_timer > 0)
-		delay_timer--;
-	if (sound_timer > 0)
-		sound_timer--;
+	uint8_t vx = (opcode & 0x0F00) >> 8;
+	printf("var_reg[%X]: %X\n", vx, var_reg[vx]);
+	
+
+	*i_reg += var_reg[vx];
+	printf("I_reg: %X\n", *i_reg);
+
 }

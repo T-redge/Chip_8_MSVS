@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 	uint8_t keys[16];
 	uint8_t delay_timer;
 	uint8_t sound_timer;
+	
 
 	uint16_t p_c;
 	uint16_t i_reg;
@@ -42,7 +43,8 @@ int main(int argc, char* argv[])
 
 	uint32_t pixels;
 	int pitch;
-
+	bool old = true;
+	bool draw_flag = true;
 	if (!init()) {
 		printf("Failed to initialize SDL!\n");
 		return EXIT_FAILURE;
@@ -50,10 +52,7 @@ int main(int argc, char* argv[])
 	/*******************************************/
 	/*		 Loading Rom		   */
 	/*******************************************/
-	if (load_rom(memory) != 0) {
-		printf("load_rom function failed\n");
-		return EXIT_FAILURE;
-	}
+	load_rom(memory);
 	/*******************************************/
 	/*       Initialisation of variables       */
 	/*******************************************/
@@ -76,6 +75,10 @@ int main(int argc, char* argv[])
 	Stack stack;
 	init_stack(&stack);
 
+	//Init Clock
+	clock_t begin = 0;
+	clock_t end = 0;
+
 	//Init rest
 	delay_timer = 0;
 	sound_timer = 0;
@@ -90,6 +93,7 @@ int main(int argc, char* argv[])
 	/*******************************************/
 	bool running = true;
 	SDL_Event e;
+	
 	while (running) {
 		event_handler(&e, &running, keys);
 		/*******************************************/
@@ -113,10 +117,10 @@ int main(int argc, char* argv[])
 		case 0x0000:
 			switch (opcode & 0xFF) {
 			case 0xE0:
-				opcodeEO(display);
+				opcode00E0(display, &draw_flag);
 				break;
 			case 0xEE:
-				opcodeEE(&p_c, &stack);
+				opcode00EE(&p_c, &stack);
 				break;
 			default:
 				printf("Opcode not recognised!\n");
@@ -184,14 +188,14 @@ int main(int argc, char* argv[])
 		case 0xA000:
 			opcodeANNN(opcode, &i_reg);
 			break;
-		case 0xB000:
+		case 0xB000: 
 			opcodeBNNN(opcode, var_reg, &p_c);
 			break;
 		case 0xC000:
 			opcodeCXNN(opcode, var_reg, rand_var);
 			break;
 		case 0xD000:
-			opcodeDXYN(opcode, var_reg, i_reg, display, memory);
+			opcodeDXYN(opcode, var_reg, i_reg, display, memory, &draw_flag);
 			break;
 		case 0xE000:
 			switch (opcode & 0xFF) {
@@ -210,27 +214,35 @@ int main(int argc, char* argv[])
 			switch (opcode & 0xFF) {
 			case 0x07:
 				opcodeFX07(opcode, var_reg, delay_timer);
+				//running = false;
 				break;
 			case 0x15:
 				opcodeFX15(opcode, var_reg, delay_timer);
+				//running = false;
 				break;
 			case 0x29:
 				opcodeFX29(opcode, &i_reg, var_reg, memory);
+				//running = false;
 				break;
 			case 0x33:
 				opcodeFX33(opcode, memory, i_reg, var_reg);
+				//running = false;
 				break;
 			case 0x55:
-				opcodeFX55(opcode, var_reg, i_reg, memory);
+				opcodeFX55(opcode, var_reg, &i_reg, memory, old);
+				//running = false;
 				break;
 			case 0x65:
-				opcodeFX65(opcode, var_reg, i_reg, memory);
+				opcodeFX65(opcode, var_reg, &i_reg, memory, old);
+				//running = false;
 				break;
 			case 0x0A:
 				opcodeFX0A(opcode, var_reg, &p_c, keys);
+				//running = false;
 				break;
 			case 0x1E:
 				opcodeFX1E(opcode, var_reg, &i_reg);
+				//running = false;
 				break;
 			default:
 				printf("Opcode not recognised!\n");
@@ -241,10 +253,20 @@ int main(int argc, char* argv[])
 			printf("Opcode not recognised!\n");
 			return EXIT_FAILURE;
 		}
- 		render(display, &pixels, pitch);
+		
+		if (draw_flag == true) {
+			render(display, &pixels, pitch);
+			draw_flag = false;
+		}
+		
+		if (delay_timer > 0)
+			--delay_timer;
+		if (sound_timer > 0)
+			--sound_timer;
 	}
 
 
 	quit();
 	return EXIT_SUCCESS;
 }
+

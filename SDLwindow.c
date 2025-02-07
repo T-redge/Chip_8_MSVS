@@ -133,15 +133,15 @@ void render(uint8_t display[][SCREEN_HEIGHT], uint32_t *pixels, int pitch)
 	for (int y = 0; y < 32; ++y) {
 		for (int x = 0; x < 64; ++x) {
 			if (display[x][y] != 0) {
-				pixels[y * 64 + x] = 0;
+				pixels[(y * 64) + x] = 0x000000FF;
+			}
+			else {
+				pixels[(y * 64) + x] = 0xFFFFFFFF;
 			}
 		}
 	}
 
 	SDL_UnlockTexture(texture);
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
-	SDL_RenderPresent(renderer);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
