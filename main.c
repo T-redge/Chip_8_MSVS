@@ -76,12 +76,14 @@ int main(int argc, char* argv[])
 	init_stack(&stack);
 
 	//Init Clock
-	clock_t begin = 0;
-	clock_t end = 0;
+	clock_t last_loop_time = 0;
+	clock_t current_time = 0;
+	int loop_count = 0;
+
 
 	//Init rest
-	delay_timer = 0;
-	sound_timer = 0;
+	delay_timer = 60;
+	sound_timer = 60;
 	p_c = 512;
 	i_reg = 0;
 	opcode = 0;
@@ -93,8 +95,13 @@ int main(int argc, char* argv[])
 	/*******************************************/
 	bool running = true;
 	SDL_Event e;
+	last_loop_time = clock();
 	
 	while (running) {
+		current_time = clock();
+		double dt = ((double)(current_time - last_loop_time)) / CLOCKS_PER_SEC;
+		++loop_count;
+		
 		event_handler(&e, &running, keys);
 		/*******************************************/
 		/*	    Decoding Chip 8 Opcodes        */
@@ -104,28 +111,28 @@ int main(int argc, char* argv[])
 		printf("p_c: %d\n", p_c);
 		int j = 0;
 		for (int i = 0; i < 16; i++) {
-			printf("Var_reg[%X]: %X\t", i, var_reg[i]);
-			++j;
-			if (j % 5 == 0)
-				printf("\n");
-		}
-		
+				printf("Var_reg[%X]: %X\t", i, var_reg[i]);
+				++j;
+				if (j % 5 == 0)
+					printf("\n");
+			}
+
 		printf("\n");
 		opcode = get_opcode(memory, &p_c);
 		printf("Opcode: %X\n", opcode);
 		switch (opcode & 0xF000) {
 		case 0x0000:
 			switch (opcode & 0xFF) {
-			case 0xE0:
-				opcode00E0(display, &draw_flag);
-				break;
-			case 0xEE:
-				opcode00EE(&p_c, &stack);
-				break;
-			default:
-				printf("Opcode not recognised!\n");
-				return EXIT_FAILURE;
-			}
+				case 0xE0:
+					opcode00E0(display, &draw_flag);
+					break;
+				case 0xEE:
+					opcode00EE(&p_c, &stack);
+					break;
+				default:
+					printf("Opcode not recognised!\n");
+					return EXIT_FAILURE;
+				}
 			break;
 		case 0x1000:
 			opcode1NNN(opcode, &p_c);
@@ -188,7 +195,7 @@ int main(int argc, char* argv[])
 		case 0xA000:
 			opcodeANNN(opcode, &i_reg);
 			break;
-		case 0xB000: 
+		case 0xB000:
 			opcodeBNNN(opcode, var_reg, &p_c);
 			break;
 		case 0xC000:
@@ -213,11 +220,11 @@ int main(int argc, char* argv[])
 		case 0xF000:
 			switch (opcode & 0xFF) {
 			case 0x07:
-				opcodeFX07(opcode, var_reg, delay_timer);
+				opcodeFX07(opcode, var_reg, &delay_timer);
 				//running = false;
 				break;
 			case 0x15:
-				opcodeFX15(opcode, var_reg, delay_timer);
+				opcodeFX15(opcode, var_reg, &delay_timer);
 				//running = false;
 				break;
 			case 0x29:
@@ -254,18 +261,22 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 		
+		if (dt > 3) {
+			printf("dt =  %f\n", dt);
+			//last_loop_time = current_time;
+			if (delay_timer > 0)
+				--delay_timer;
+			if (sound_timer > 0)
+				--sound_timer;
+		}
+
 		if (draw_flag == true) {
 			render(display, &pixels, pitch);
 			draw_flag = false;
 		}
-		
-		if (delay_timer > 0)
-			--delay_timer;
-		if (sound_timer > 0)
-			--sound_timer;
-	}
-
-
+		if (loop_count > 700)
+			running = false;
+	} 
 	quit();
 	return EXIT_SUCCESS;
 }
