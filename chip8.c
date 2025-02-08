@@ -309,11 +309,10 @@ void opcodeCXNN(uint16_t opcode, uint8_t* var_reg, int  random_number)
 }
 void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t display[][SCREEN_HEIGHT], uint8_t* memory, bool *draw_flag)
 {
-	uint16_t vx, vy, rows, coord_x, coord_y, sprite_data, tmp_i;
+	uint16_t vx, vy, rows, coord_x, coord_y, sprite_data;
 	vx = (opcode & 0x0F00) >> 8;
 	vy = (opcode & 0x00F0) >> 4;
 	rows = opcode & 0x000F;
-	tmp_i = i_reg;
 	coord_x = var_reg[vx];
 	coord_y = var_reg[vy];
 
@@ -321,7 +320,7 @@ void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t displ
 	printf("vx: %X, vy: %X, rows: %X, coord_x: %X, coord_y: %X\n", vx, vy, rows, coord_x, coord_y);
 
 	for (int i = 0; i < rows; ++i) {
-		sprite_data = memory[tmp_i + i];
+		sprite_data = memory[i_reg + i];
 		printf("Sprite_data: %X\t", sprite_data);
 
 		int xpixelinv = 7;
@@ -335,9 +334,9 @@ void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t displ
 			if ((sprite_data & mask)) {
 				int x = (coord_x + xpixel);
 				int y = (coord_y + i);
-					if (display[x][y] == 1)
-						var_reg[15] = 1;
-					display[x][y] ^= 1;
+				if (display[x][y] == 1)
+					var_reg[15] = 1;
+				display[x][y] ^= 1;
 			}
 		}
 		printf("\n");

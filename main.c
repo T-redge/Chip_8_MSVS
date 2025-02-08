@@ -17,7 +17,6 @@ int main(int argc, char* argv[])
 	uint8_t delay_timer;
 	uint8_t sound_timer;
 	
-
 	uint16_t p_c;
 	uint16_t i_reg;
 	uint16_t opcode;
@@ -76,8 +75,8 @@ int main(int argc, char* argv[])
 	init_stack(&stack);
 
 	//Init Clock
-	clock_t last_loop_time = 0;
-	clock_t current_time = 0;
+	//clock_t last_loop_time = 0;
+	//clock_t current_time = 0;
 	int loop_count = 0;
 
 
@@ -95,12 +94,11 @@ int main(int argc, char* argv[])
 	/*******************************************/
 	bool running = true;
 	SDL_Event e;
-	last_loop_time = clock();
 	
+	//current_time = clock();
 	while (running) {
-		current_time = clock();
-		double dt = ((double)(current_time - last_loop_time)) / CLOCKS_PER_SEC;
-		++loop_count;
+		//double dt = ((double)(current_time - last_loop_time)) / CLOCKS_PER_SEC;
+		
 		
 		event_handler(&e, &running, keys);
 		/*******************************************/
@@ -261,22 +259,18 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 		
-		if (dt > 0.0004) {
-			printf("dt =  %f\n", dt);
-			last_loop_time = current_time;
+		if (loop_count >= 8) {
 			if (delay_timer > 0)
-				--delay_timer; 
+				--delay_timer;
 			if (sound_timer > 0)
 				--sound_timer;
-			if (draw_flag == true) {
-				render(display, &pixels, pitch);
-				draw_flag = false;
-			}
+			loop_count = 0;
 		}
-
-		
-		//if (loop_count > 700)
-			//running = false;
+		if (draw_flag == true) {
+			render(display, &pixels, pitch);
+			draw_flag = false;
+		}
+		++loop_count;
 	} 
 	quit();
 	return EXIT_SUCCESS;
