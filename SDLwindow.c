@@ -130,14 +130,12 @@ void render(uint8_t display[][SCREEN_HEIGHT], uint32_t *pixels, int pitch)
 	SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch);
 	SDL_memset(pixels, 255, (uint64_t)pitch * 32);
 
-	for (int y = 0; y < 32; ++y) {
-		for (int x = 0; x < 64; ++x) {
-			if (display[x][y] != 0) {
-				pixels[(y * 64) + x] = 0x000000FF;
-			}
-			else {
-				pixels[(y * 64) + x] = 0xFFFFFFFF;
-			}
+	for (int y = 0; y < 32; y++) {
+		for (int x = 0; x < 64; x++) {
+			pixels[(y * 64) + x] = (0xFFFFFF00 * display[x][y]) | 0x000000FF;
+			
+		
+			
 		}
 	}
 
