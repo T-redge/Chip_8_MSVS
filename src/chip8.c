@@ -3,7 +3,7 @@
 //Loading rom into memory
 void load_rom(uint8_t* memory)
 {
-	const int8_t* file_name = "rom/snake.ch8";
+	const int8_t* file_name = "rom/br8kout.ch8";
 	const int8_t* file_mode = "rb";
 
 	long long file_size;
