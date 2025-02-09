@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 	uint8_t memory[MEMSIZE];
 	uint8_t display[SCREEN_WIDTH][SCREEN_HEIGHT] = { 0 };
 	uint8_t var_reg[16] = { 0 };
-	uint8_t keys[16];
+	uint8_t keys[16] = {0};
 	uint8_t delay_timer;
 	uint8_t sound_timer;
 	
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 	};
 
-	uint32_t pixels;
+	uint32_t *pixels = malloc((SCREEN_HEIGHT * SCREEN_WIDTH) * sizeof(uint32_t));
 	int pitch;
 	bool old = true;
 	bool draw_flag = true;
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 		//double dt = ((double)(current_time - last_loop_time)) / CLOCKS_PER_SEC;
 		
 		
-		event_handler(&e, &running, keys);
+		event_handler(&e, &running, &keys);
 		/*******************************************/
 		/*	    Decoding Chip 8 Opcodes        */
 		/*******************************************/
@@ -205,10 +205,10 @@ int main(int argc, char* argv[])
 		case 0xE000:
 			switch (opcode & 0xFF) {
 			case 0x9E:
-				opcodeEX9E(opcode, keys, &p_c);
+				opcodeEX9E(opcode, &keys, &p_c, var_reg);
 				break;
 			case 0xA1:
-				opcodeEXA1(opcode, keys, &p_c);
+				opcodeEXA1(opcode, &keys, &p_c, var_reg);
 				break;
 			default:
 				printf("Opcode not recognised!\n");
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 				//running = false;
 				break;
 			case 0x0A:
-				opcodeFX0A(opcode, var_reg, &p_c, keys);
+				opcodeFX0A(opcode, &var_reg, &p_c, &keys);
 				//running = false;
 				break;
 			case 0x1E:
@@ -267,11 +267,13 @@ int main(int argc, char* argv[])
 			loop_count = 0;
 		}
 		if (draw_flag == true) {
-			render(display, &pixels, pitch);
+			buffer(pixels, display);
+			render(pixels);
 			draw_flag = false;
 		}
 		++loop_count;
 	} 
+	free(pixels);
 	quit();
 	return EXIT_SUCCESS;
 }

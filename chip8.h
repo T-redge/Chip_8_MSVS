@@ -39,8 +39,8 @@ void opcodeANNN(uint16_t opcode, uint16_t* i_reg);									//Sets I_reg to NNN
 void opcodeBNNN(uint16_t opcode, uint8_t* var_reg, uint16_t* p_c);							//Jumps to address NNN plus value of V0
 void opcodeCXNN(uint16_t opcode, uint8_t* var_reg, int random_number);							//Sets vx to NN binaryAND random number
 void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t display[][SCREEN_HEIGHT], uint8_t* memory, bool *draw_flag); 	//Display
-void opcodeEX9E(uint16_t opcode, uint8_t* keys, uint16_t* p_c);								//Skips one instruction if key[vx] is pressed
-void opcodeEXA1(uint16_t opcode, uint8_t* keys, uint16_t* p_c);								//Skips one instruction if key[vx] is not pressed
+void opcodeEX9E(uint16_t opcode, uint8_t* keys, uint16_t* p_c, uint8_t *var_reg);								//Skips one instruction if key[vx] is pressed
+void opcodeEXA1(uint16_t opcode, uint8_t* keys, uint16_t* p_c, uint8_t* var_reg);								//Skips one instruction if key[vx] is not pressed
 void opcodeFX07(uint16_t opcode, uint8_t* var_reg, uint8_t delay_timer);						//Sets var_reg[vx] to current value of delay_timer
 void opcodeFX15(uint16_t opcode, uint8_t* var_reg, uint8_t *delay_timer);						//Sets delay_timer to value of var_reg[vx]
 void opcodeFX18(uint16_t opcode, uint8_t* var_reg, uint8_t sound_timer);						//Sets sound_timer to value of var_reg[vx]

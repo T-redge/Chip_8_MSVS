@@ -3,7 +3,7 @@
 //Loading rom into memory
 void load_rom(uint8_t* memory)
 {
-	const int8_t* file_name = "rom/quirks.ch8";
+	const int8_t* file_name = "rom/snake.ch8";
 	const int8_t* file_mode = "rb";
 
 	long long file_size;
@@ -217,16 +217,12 @@ void opcode8XY5(uint16_t opcode, uint8_t* var_reg)
 void opcode8XY6(uint16_t opcode, uint8_t* var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
-	
+	uint8_t vy = (opcode & 0x00F0) >> 4;
 
 	uint8_t shift_x = var_reg[vx] & 0x1;
-	printf("%X\n", var_reg[vx]);
-	printf("%X\n", shift_x);
 
-	var_reg[vx] >>= 1;
+	var_reg[vx] = var_reg[vy] >> 1;
 
-	printf("%X\n", var_reg[vx]);
-	printf("%X\n", var_reg[vx] & 0x1);
 
 	var_reg[15] = shift_x;
 	printf("%X", var_reg[15]);
@@ -249,6 +245,7 @@ void opcode8XY7(uint16_t opcode, uint8_t* var_reg)
 void opcode8XYE(uint16_t opcode, uint8_t* var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
+	uint8_t vy = (opcode & 0x00F0) >> 4;
 	
 	uint8_t mask = (1 << 7);
 
@@ -258,7 +255,7 @@ void opcode8XYE(uint16_t opcode, uint8_t* var_reg)
 	printf("%X\n", var_reg[vx]);
 	printf("%X\n", shift_x);
 
-	var_reg[vx] <<= 1;
+	var_reg[vx] = var_reg[vy] << 1;
 
 	printf("%X\n", var_reg[vx]);
 	printf("%X\n", var_reg[vx] & mask);
@@ -309,56 +306,49 @@ void opcodeCXNN(uint16_t opcode, uint8_t* var_reg, int  random_number)
 }
 void opcodeDXYN(uint16_t opcode, uint8_t* var_reg, uint16_t i_reg, uint8_t display[][SCREEN_HEIGHT], uint8_t* memory, bool *draw_flag)
 {
-	uint16_t vx, vy, rows, coord_x, coord_y, sprite_data;
+	uint8_t vx, vy, sprite_height, x_local, y_local, pixel;
 	vx = (opcode & 0x0F00) >> 8;
 	vy = (opcode & 0x00F0) >> 4;
-	rows = opcode & 0x000F;
-	coord_x = var_reg[vx];
-	coord_y = var_reg[vy];
+	sprite_height = opcode & 0x000F;
+	x_local = var_reg[vx] % 64;
+	y_local = var_reg[vy] % 32;
+
 
 	var_reg[15] = 0;
-	printf("vx: %X, vy: %X, rows: %X, coord_x: %X, coord_y: %X\n", vx, vy, rows, coord_x, coord_y);
+	for (int y_coord = 0; y_coord < sprite_height; y_coord++) {
+		pixel = memory[i_reg + y_coord];
+		int y = (y_local + y_coord);
+		if (y >= SCREEN_HEIGHT)
+			break;
 
-	for (int i = 0; i < rows; ++i) {
-		sprite_data = memory[i_reg + i];
-		printf("Sprite_data: %X\t", sprite_data);
-
-		int xpixelinv = 7;
-		int xpixel = 0;
-
-		printf("\n");
-		for (xpixel = 0; xpixel < 8; ++xpixel, --xpixelinv) {
-			int mask = (0x80 >> xpixel);
-
-			printf("%X\t", mask);
-			if ((sprite_data & mask)) {
-				int x = (coord_x + xpixel);
-				int y = (coord_y + i);
+		for (int x_coord = 0; x_coord < 8; x_coord++) {
+			int mask = (0x80 >> x_coord);
+			int x = (x_local + x_coord);
+			if (x >= SCREEN_WIDTH)
+				break;
+			if ((pixel & mask) != 0) {
 				if (display[x][y] == 1)
 					var_reg[15] = 1;
 				display[x][y] ^= 1;
 			}
 		}
-		printf("\n");
 	}
 	*draw_flag = true;
-	printf("\n");
 }
-void opcodeEX9E(uint16_t opcode, uint8_t* keys, uint16_t* p_c)
+void opcodeEX9E(uint16_t opcode, uint8_t* keys, uint16_t* p_c, uint8_t *var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 
-	if (keys[vx] == 1) {
+
+	if (keys[var_reg[vx]] == 1)
 		*p_c += 2;
-	}
 }
-void opcodeEXA1(uint16_t opcode, uint8_t* keys, uint16_t* p_c)
+void opcodeEXA1(uint16_t opcode, uint8_t* keys, uint16_t* p_c, uint8_t *var_reg)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 
-	if (keys[vx] == 0) {
+	if (keys[var_reg[vx]] == 0)
 		*p_c += 2;
-	}
 }
 void opcodeFX07(uint16_t opcode, uint8_t* var_reg, uint8_t delay_timer)
 {
@@ -469,41 +459,20 @@ void opcodeFX65(uint16_t opcode, uint8_t* var_reg, uint16_t *i_reg, uint8_t* mem
 void opcodeFX0A(uint16_t opcode, uint8_t *var_reg, uint16_t *p_c, uint8_t *keys)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
+	
+	bool key_press = false;
+	
+	for (uint8_t i = 0; i < 16; i++) {
+		if (keys[i] != 0) {
+			key_press = true;
+			var_reg[vx] = i;
+			keys[i] = 0;
+		}
+	}
 
-	if (keys[0x0] == 1)
-		var_reg[vx] = 0x0;
-	else if (keys[0x1] == 1)
-		var_reg[vx] = 0x1;
-	else if (keys[0x2] == 1)
-		var_reg[vx] = 0x2;
-	else if (keys[0x3] == 1)
-		var_reg[vx] = 0x3;
-	else if (keys[0x4] == 1)
-		var_reg[vx] = 0x4;
-	else if (keys[0x5] == 1)
-		var_reg[vx] = 0x5;
-	else if (keys[0x6] == 1)
-		var_reg[vx] = 0x6;
-	else if (keys[0x7] == 1)
-		var_reg[vx] = 0x7;
-	else if (keys[0x8] == 1)
-		var_reg[vx] = 0x8;
-	else if (keys[0x9] == 1)
-		var_reg[vx] = 0x9;
-	else if (keys[0xA] == 1)
-		var_reg[vx] = 0xA;
-	else if (keys[0xB] == 1)
-		var_reg[vx] = 0xB;
-	else if (keys[0xC] == 1)
-		var_reg[vx] = 0xC;
-	else if (keys[0xD] == 1)
-		var_reg[vx] = 0xD;
-	else if (keys[0xE] == 1)
-		var_reg[vx] = 0xE;
-	else if (keys[0xF] == 1)
-		var_reg[vx] = 0xF;
-	else
+	if (!key_press)
 		*p_c -= 2;
+
 }
 void opcodeFX1E(uint16_t opcode, uint8_t* var_reg, uint16_t* i_reg)
 {
