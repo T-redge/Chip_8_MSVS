@@ -199,5 +199,6 @@ void quit()
 	texture = NULL;
 
 	SDL_Quit();
+	Mix_Quit();
 	printf("SDL has closed succesfully!\n");
 }

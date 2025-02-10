@@ -225,6 +225,9 @@ int main(int argc, char* argv[])
 				opcodeFX15(opcode, var_reg, &delay_timer);
 				//running = false;
 				break;
+			case 0x18:
+				opcodeFX18(opcode, var_reg, &sound_timer);
+				break;
 			case 0x29:
 				opcodeFX29(opcode, &i_reg, var_reg, memory);
 				//running = false;

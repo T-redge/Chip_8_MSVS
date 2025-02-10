@@ -362,11 +362,11 @@ void opcodeFX15(uint16_t opcode, uint8_t* var_reg, uint8_t *delay_timer)
 
 	*delay_timer = var_reg[vx];
 }
-void opcodeFX18(uint16_t opcode, uint8_t* var_reg, uint8_t sound_timer)
+void opcodeFX18(uint16_t opcode, uint8_t* var_reg, uint8_t* sound_timer)
 {
 	uint8_t vx = (opcode & 0x0F00) >> 8;
 
-	sound_timer = var_reg[vx];
+	*sound_timer = var_reg[vx];
 }
 void opcodeFX29(uint16_t opcode, uint16_t *i_reg, uint8_t *var_reg, uint8_t* memory)
 {
