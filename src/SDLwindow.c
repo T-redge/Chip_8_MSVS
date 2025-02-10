@@ -7,11 +7,17 @@ const int VIDEO_SCALE	 = 20;
 SDL_Window* window	= NULL;
 SDL_Texture* texture	= NULL;
 SDL_Renderer* renderer	= NULL;
+Mix_Music* beep		= NULL;
 
 bool init()
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		printf("SDL Initialization failed. SDL Error: %s\n", SDL_GetError());
+		return false;
+	}
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+		printf("SDL_Mixer could not initialize! SDL_Mixer Error: %s\n", Mix_GetError());
 		return false;
 	}
 
@@ -30,6 +36,12 @@ bool init()
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, VIDEO_WIDTH, VIDEO_HEIGHT);
 	if (texture == NULL) {
 		printf("Texture could not be created. SDL Error: %s\n", SDL_GetError());
+		return false;
+	}
+
+	beep = Mix_LoadWAV("src/sound/short_beep.wav");
+	if (beep == NULL) {
+		printf("Beep could not be created. SDL Error: %s\n", SDL_GetError());
 		return false;
 	}
 
@@ -170,12 +182,18 @@ void render(uint32_t *pixels)
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
 }
+void play_beep()
+{
+	Mix_PlayChannel(-1, beep, 0);
+}
 void quit()
 {
+	Mix_FreeChunk(beep);
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 
+	beep = NULL;
 	window = NULL;
 	renderer = NULL;
 	texture = NULL;

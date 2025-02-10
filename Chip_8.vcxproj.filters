@@ -20,28 +20,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
+    <ClCompile Include="src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SDLwindow.c">
-      <Filter>Source Files\SDL2</Filter>
+    <ClCompile Include="src\Stack.c">
+      <Filter>Source Files\STACK</Filter>
     </ClCompile>
-    <ClCompile Include="chip8.c">
+    <ClCompile Include="src\chip8.c">
       <Filter>Source Files\CHIP_8</Filter>
     </ClCompile>
-    <ClCompile Include="Stack.c">
-      <Filter>Source Files\STACK</Filter>
+    <ClCompile Include="src\SDLwindow.c">
+      <Filter>Source Files\SDL2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SDLwindow.h">
-      <Filter>Source Files\SDL2</Filter>
+    <ClInclude Include="src\Stack.h">
+      <Filter>Source Files\STACK</Filter>
     </ClInclude>
-    <ClInclude Include="chip8.h">
+    <ClInclude Include="src\chip8.h">
       <Filter>Source Files\CHIP_8</Filter>
     </ClInclude>
-    <ClInclude Include="Stack.h">
-      <Filter>Source Files\STACK</Filter>
+    <ClInclude Include="src\SDLwindow.h">
+      <Filter>Source Files\SDL2</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

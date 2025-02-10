@@ -262,8 +262,10 @@ int main(int argc, char* argv[])
 		if (loop_count >= 8) {
 			if (delay_timer > 0)
 				--delay_timer;
-			if (sound_timer > 0)
+			if (sound_timer > 0) {
+				play_beep();
 				--sound_timer;
+			}
 			loop_count = 0;
 		}
 		if (draw_flag == true) {
