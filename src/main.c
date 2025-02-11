@@ -75,8 +75,8 @@ int main(int argc, char* argv[])
 	init_stack(&stack);
 
 	//Init Clock
-	//clock_t last_loop_time = 0;
-	//clock_t current_time = 0;
+	clock_t last_loop_time = 0;
+	clock_t current_time = 0;
 	int loop_count = 0;
 
 
@@ -94,13 +94,12 @@ int main(int argc, char* argv[])
 	/*******************************************/
 	bool running = true;
 	SDL_Event e;
+	last_loop_time = clock();
 	
-	//current_time = clock();
 	while (running) {
-		//double dt = ((double)(current_time - last_loop_time)) / CLOCKS_PER_SEC;
+		current_time = clock();
 		
-		
-		event_handler(&e, &running, &keys);
+		event_handler(&e, &running, keys);
 		/*******************************************/
 		/*	    Decoding Chip 8 Opcodes        */
 		/*******************************************/
@@ -205,10 +204,10 @@ int main(int argc, char* argv[])
 		case 0xE000:
 			switch (opcode & 0xFF) {
 			case 0x9E:
-				opcodeEX9E(opcode, &keys, &p_c, var_reg);
+				opcodeEX9E(opcode, keys, &p_c, var_reg);
 				break;
 			case 0xA1:
-				opcodeEXA1(opcode, &keys, &p_c, var_reg);
+				opcodeEXA1(opcode, keys, &p_c, var_reg);
 				break;
 			default:
 				printf("Opcode not recognised!\n");
@@ -245,7 +244,7 @@ int main(int argc, char* argv[])
 				//running = false;
 				break;
 			case 0x0A:
-				opcodeFX0A(opcode, &var_reg, &p_c, &keys);
+				opcodeFX0A(opcode, var_reg, &p_c, keys);
 				//running = false;
 				break;
 			case 0x1E:
@@ -262,6 +261,7 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 		
+		++loop_count;
 		if (loop_count >= 8) {
 			if (delay_timer > 0)
 				--delay_timer;
@@ -269,6 +269,7 @@ int main(int argc, char* argv[])
 				play_beep();
 				--sound_timer;
 			}
+			
 			loop_count = 0;
 		}
 		if (draw_flag == true) {
@@ -276,7 +277,10 @@ int main(int argc, char* argv[])
 			render(pixels);
 			draw_flag = false;
 		}
-		++loop_count;
+
+		double dt = ((double)(current_time - last_loop_time));
+		printf("dt = %f\n", dt);
+		printf("loop_count = % d\n", loop_count);
 	} 
 	free(pixels);
 	quit();
