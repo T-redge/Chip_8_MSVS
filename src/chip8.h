@@ -44,7 +44,7 @@ void opcodeEXA1(uint16_t opcode, uint8_t* keys, uint16_t* p_c, uint8_t* var_reg)
 void opcodeFX07(uint16_t opcode, uint8_t* var_reg, uint8_t delay_timer);						//Sets var_reg[vx] to current value of delay_timer
 void opcodeFX15(uint16_t opcode, uint8_t* var_reg, uint8_t *delay_timer);						//Sets delay_timer to value of var_reg[vx]
 void opcodeFX18(uint16_t opcode, uint8_t* var_reg, uint8_t *sound_timer);						//Sets sound_timer to value of var_reg[vx]
-void opcodeFX29(uint16_t opcode, uint16_t* i_reg, uint8_t* var_reg, uint8_t* memory);
+void opcodeFX29(uint16_t opcode, uint16_t i_reg, uint8_t* var_reg, uint8_t* memory);
 void opcodeFX33(uint16_t opcode, uint8_t* memory, uint16_t i_reg, uint8_t* var_reg);					//Binary coded decimal conversion
 void opcodeFX55(uint16_t opcode, uint8_t* var_reg, uint16_t *i_reg, uint8_t* memory, bool old);				//Loads var_reg into memory
 void opcodeFX65(uint16_t opcode, uint8_t* var_reg, uint16_t *i_reg, uint8_t* memory, bool old);				//Loads memory into v[0] to v[X]

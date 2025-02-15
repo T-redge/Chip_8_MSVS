@@ -7,7 +7,7 @@ const int VIDEO_SCALE	 = 20;
 SDL_Window* window	= NULL;
 SDL_Texture* texture	= NULL;
 SDL_Renderer* renderer	= NULL;
-Mix_Music* beep		= NULL;
+Mix_Chunk* beep		= NULL;
 
 bool init()
 {

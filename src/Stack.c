@@ -20,7 +20,6 @@ void push(Stack* stack, uint16_t new_address)
 		exit(EXIT_FAILURE);
 	}
 	stack->mem_address[++stack->top] = new_address;
-	printf("Top of stack: %X\n", stack->mem_address[stack->top - 1]);
 }
 uint16_t pop(Stack* stack)
 {
@@ -29,6 +28,5 @@ uint16_t pop(Stack* stack)
 		exit(EXIT_FAILURE);
 	}
 	uint16_t tmp = stack->mem_address[stack->top--];
-	printf("Address: %X\n", tmp);
 	return tmp;
 }
