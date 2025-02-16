@@ -10,7 +10,6 @@ int main(int argc, char* argv[])
 
 
 	uint32_t *pixels = malloc((DISPLAY_HEIGHT * DISPLAY_WIDTH) * sizeof(uint32_t));
-	int pitch;
 	bool old = true;
 	
 	if (!init()) {
@@ -29,11 +28,9 @@ int main(int argc, char* argv[])
 	srand((unsigned)time(NULL));
 	int rand_var = (rand() % (255 - 0 + 1)) + 0;
 
-	//Init Clock
-	int loop_counter = 0;
-
 	//Init rest
-	pitch = 0;
+	int pitch = 0;
+	int loop_counter = 0;
 
 	/*******************************************/
 	/*		Program Loop               */
