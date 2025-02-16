@@ -7,11 +7,9 @@ int main(int argc, char* argv[])
 {
 	if (argc != 0);
 	if (argv[0]);
-
-
-	uint32_t *pixels = malloc((DISPLAY_HEIGHT * DISPLAY_WIDTH) * sizeof(uint32_t));
-	bool old = true;
-	
+	/********************************************************************************/
+	/*		                 Initialisation					*/
+	/********************************************************************************/
 	if (!init()) {
 		printf("Failed to initialize SDL!\n");
 		return EXIT_FAILURE;
@@ -29,21 +27,22 @@ int main(int argc, char* argv[])
 	int rand_var = (rand() % (255 - 0 + 1)) + 0;
 
 	//Init rest
-	int pitch = 0;
 	int loop_counter = 0;
+	bool old = true;
+	uint32_t* pixels = malloc(
+		(DISPLAY_HEIGHT * DISPLAY_WIDTH) * sizeof(uint32_t));
 
-	/*******************************************/
-	/*		Program Loop               */
-	/*******************************************/
+	/********************************************************************************/
+	/*		                 Program Loop					*/
+	/********************************************************************************/
 	bool running = true;
 	SDL_Event e;
 	
-	
 	while (running) {
-		/*******************************************/
-		/*	    Decoding Chip 8 Opcodes        */
-		/*******************************************/
+		//Fetch
 		chip8.opcode = get_opcode(&chip8);
+
+		//Decode + Execute
 		switch (chip8.opcode & 0xF000) {
 			case 0x0000:
 				switch (chip8.opcode & 0xFF) {
@@ -189,18 +188,22 @@ int main(int argc, char* argv[])
 		}
 		++loop_counter;
 
+		//Event Handling
 		event_handler(&e, &running, &chip8);
-		
+
+		//Drawing to screen
 		if (chip8.draw_flag == true) {
 			buffer(pixels, &chip8);
 			render(pixels);
 			chip8.draw_flag = false;
 		}
 
+		//Updating timers
 		if (loop_counter == 8) {
 			update_timers(&chip8);
 			loop_counter = 0;
 		}
+		//Delay to slow executing loop
 		SDL_Delay(1);
 	} 
 	free(pixels);
