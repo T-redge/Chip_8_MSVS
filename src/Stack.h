@@ -1,11 +1,11 @@
-#ifndef C_STACK_H
-#define C_STACK_H
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+
+#ifndef C_STACK_H
+#define C_STACK_H
 /********************************************/
 /*Stack Functions
 /********************************************/

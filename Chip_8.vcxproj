@@ -131,13 +131,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\chip8.c" />
+    <ClCompile Include="src\chip8_instruct.c" />
+    <ClCompile Include="src\chip8_struct.c" />
+    <ClCompile Include="src\chip8_struct.h" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\SDLwindow.c" />
     <ClCompile Include="src\Stack.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\chip8.h" />
+    <ClInclude Include="src\chip8_instruct.h" />
     <ClInclude Include="src\SDLwindow.h" />
     <ClInclude Include="src\Stack.h" />
   </ItemGroup>
