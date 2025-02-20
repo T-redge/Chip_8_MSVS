@@ -1,11 +1,7 @@
-#include "chip8_instruct.h"
-
 #ifndef SDL_WINDOW_H
 #define SDL_WINDOW_H
 
-
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include "chip8_instruct.h"
 
 //SDL2 init function
 bool init();

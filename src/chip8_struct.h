@@ -1,8 +1,7 @@
-#include "Stack.h"
-
 #ifndef CHIP_8_STRUCT_H
 #define CHIP_8_STRUCT_H
 
+#include "Stack.h"
 
 #define MEMORY_SIZE 4096
 #define DISPLAY_HEIGHT 32

@@ -29,7 +29,6 @@ int main(int argc, char* argv[])
 	int rand_var = (rand() % (255 - 0 + 1)) + 0;
 
 	//Init rest
-	int pitch = 0;
 	int loop_counter = 0;
 
 	/*******************************************/

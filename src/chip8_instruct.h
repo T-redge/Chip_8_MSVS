@@ -1,8 +1,7 @@
-#include "chip8_struct.h"
-
 #ifndef CHIP_8_INSTRUCTIONS_H
 #define CHIP_8_INSTRUCTIONS_H
 
+#include "chip8_struct.h"
 
 void opcode00E0(Chip8* chip8);							//Sets Display to 0's
 void opcode00EE(Chip8* chip8, Stack* stack);							//Returns from address at top of stack
