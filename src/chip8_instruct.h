@@ -5,9 +5,9 @@
 
 
 void opcode00E0(Chip8* chip8);							//Sets Display to 0's
-void opcode00EE(Chip8* chip8, Stack* stack);							//Returns from address at top of stack
+void opcode00EE(Chip8* chip8, Stack* stack);					//Returns from address at top of stack
 void opcode1NNN(Chip8* chip8);							//Sets p_c to NNN
-void opcode2NNN(Chip8* chip8, Stack* stack);							//Pushes current p_c to stack and jumps to NNN
+void opcode2NNN(Chip8* chip8, Stack* stack);					//Pushes current p_c to stack and jumps to NNN
 void opcode3XNN(Chip8* chip8);							//skips one instruction if vx == NN
 void opcode4XNN(Chip8* chip8);							//skips one instruction if vx != NN
 void opcode5XY0(Chip8* chip8);							//skips one instruction if vx == vy

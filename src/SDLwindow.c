@@ -1,16 +1,23 @@
 #include "SDLwindow.h"
 
-int VIDEO_WIDTH		 = 64;
-int VIDEO_HEIGHT	 = 32;
-const int VIDEO_SCALE	 = 20;
+#include <stdbool.h>
 
-SDL_Window* window	= NULL;
-SDL_Texture* texture	= NULL;
-SDL_Renderer* renderer	= NULL;
-Mix_Chunk* beep		= NULL;
-
-bool init()
+bool init_sdl(SDL* sdl)
 {
+	sdl->window = NULL;
+	sdl->texture = NULL;
+	sdl->renderer = NULL;
+	sdl->beep = NULL;
+
+	sdl->pixels = malloc(
+		(DISPLAY_HEIGHT * DISPLAY_WIDTH) * sizeof(uint32_t));
+
+	sdl->video_width = 64;
+	sdl->video_height = 32;
+	sdl->video_scale = 20;
+
+	sdl->running_flag = true;
+
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		printf("SDL Initialization failed. SDL Error: %s\n", SDL_GetError());
 		return false;
@@ -21,41 +28,41 @@ bool init()
 		return false;
 	}
 
-	window = SDL_CreateWindow("Chip_8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, VIDEO_WIDTH * VIDEO_SCALE, VIDEO_HEIGHT * VIDEO_SCALE, SDL_WINDOW_SHOWN);
-	if (window == NULL) {
+	sdl->window = SDL_CreateWindow("Chip_8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sdl->video_width * sdl->video_scale, sdl->video_height * sdl->video_scale, SDL_WINDOW_SHOWN);
+	if (sdl->window == NULL) {
 		printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
 		return false;
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (renderer == NULL) {
+	sdl->renderer = SDL_CreateRenderer(sdl->window, -1, SDL_RENDERER_ACCELERATED);
+	if (sdl->renderer == NULL) {
 		printf("Renderer could not be created. SDL Error: %s\n", SDL_GetError());
 		return false;
 	}
 
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, VIDEO_WIDTH, VIDEO_HEIGHT);
-	if (texture == NULL) {
+	sdl->texture = SDL_CreateTexture(sdl->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, sdl->video_width, sdl->video_height);
+	if (sdl->texture == NULL) {
 		printf("Texture could not be created. SDL Error: %s\n", SDL_GetError());
 		return false;
 	}
 
-	beep = Mix_LoadWAV("src/sound/short_beep.wav");
-	if (beep == NULL) {
+	sdl->beep = Mix_LoadWAV("src/sound/short_beep.wav");
+	if (sdl->beep == NULL) {
 		printf("Beep could not be created. SDL Error: %s\n", SDL_GetError());
 		return false;
 	}
 
 	return true;
 }
-void event_handler(SDL_Event* event, bool* flag, Chip8* chip8)
+void event_handler(SDL* sdl, Chip8* chip8)
 {
-	while (SDL_PollEvent(event) != 0) {
-		switch (event->type) {
+	while (SDL_PollEvent(&sdl->event) != 0) {
+		switch (sdl->event.type) {
 		case SDL_QUIT:
-			*flag = false;
+			sdl->running_flag = false;
 			break;
 		case SDL_KEYDOWN:
-			switch (event->key.keysym.scancode) {
+			switch (sdl->event.key.keysym.scancode) {
 			case SDL_SCANCODE_1:
 				chip8->keys[0x1] = 1;
 				break;
@@ -110,7 +117,7 @@ void event_handler(SDL_Event* event, bool* flag, Chip8* chip8)
 			}
 			break;
 		case SDL_KEYUP:
-			switch (event->key.keysym.scancode) {
+			switch (sdl->event.key.keysym.scancode) {
 			case SDL_SCANCODE_1:
 				chip8->keys[0x1] = 0;
 				break;
@@ -169,34 +176,34 @@ void event_handler(SDL_Event* event, bool* flag, Chip8* chip8)
 		}
 	}
 }
-void buffer(uint32_t* buffer, Chip8* chip8)
+void buffer(SDL* sdl, Chip8* chip8)
 {
-	for (int y = 0; y < DISPLAY_HEIGHT; y++) 
+	for (int y = 0; y < DISPLAY_HEIGHT; y++)
 		for (int x = 0; x < DISPLAY_WIDTH; x++)
-			buffer[(y * DISPLAY_WIDTH) + x] = (0xFFFFFF00 * chip8->display[x][y]) | 0x000000FF;
+			sdl->pixels[(y * DISPLAY_WIDTH) + x] = (0xFFFFFF00 * chip8->display[x][y]) | 0x000000FF;
 }
-void render(uint32_t *pixels)
+void render(SDL* sdl, uint32_t *pixels)
 {
-	SDL_UpdateTexture(texture, NULL, pixels, DISPLAY_WIDTH * sizeof(uint32_t));
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
-	SDL_RenderPresent(renderer);
+	SDL_UpdateTexture(sdl->texture, NULL, pixels, DISPLAY_WIDTH * sizeof(uint32_t));
+	SDL_RenderClear(sdl->renderer);
+	SDL_RenderCopy(sdl->renderer, sdl->texture, NULL, NULL);
+	SDL_RenderPresent(sdl->renderer);
 }
-void play_beep()
+void play_beep(SDL* sdl)
 {
-	Mix_PlayChannel(-1, beep, 0);
+	Mix_PlayChannel(-1, sdl->beep, 0);
 }
-void quit()
+void quit(SDL* sdl)
 {
-	Mix_FreeChunk(beep);
-	SDL_DestroyTexture(texture);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	Mix_FreeChunk(sdl->beep);
+	SDL_DestroyTexture(sdl->texture);
+	SDL_DestroyRenderer(sdl->renderer);
+	SDL_DestroyWindow(sdl->window);
 
-	beep = NULL;
-	window = NULL;
-	renderer = NULL;
-	texture = NULL;
+	sdl->beep = NULL;
+	sdl->window = NULL;
+	sdl->renderer = NULL;
+	sdl->texture = NULL;
 
 	SDL_Quit();
 	Mix_Quit();

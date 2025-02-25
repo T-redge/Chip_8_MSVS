@@ -1,24 +1,41 @@
-#include "chip8_instruct.h"
-
 #ifndef SDL_WINDOW_H
 #define SDL_WINDOW_H
+
+#include "chip8_instruct.h"
 
 
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+typedef struct SDL {
+	SDL_Window* window;
+	SDL_Texture* texture;
+	SDL_Renderer* renderer;
+	Mix_Chunk* beep;
+
+	SDL_Event event;
+
+	uint32_t* pixels;
+
+	int video_width;
+	int video_height;
+	int video_scale;
+
+	bool running_flag;
+}SDL;
+
 //SDL2 init function
-bool init();
+bool init_sdl(SDL* sdl);
 //SDL2 event function
-void event_handler(SDL_Event* event, bool* flag, Chip8* chip8);
+void event_handler(SDL* sdl, Chip8* chip8);
 //SDL2 buffer fucntion
-void buffer(uint32_t* buffer, Chip8* chip8);
+void buffer(SDL* sdl, Chip8* chip8);
 //SDL2 render function
-void render(uint32_t *pixels);
+void render(SDL* sdl, uint32_t *pixels);
 //Plays sound
-void play_beep();
+void play_beep(SDL* sdl);
 //SDL2 clean up function
-void quit();
+void quit(SDL* sdl);
 
 
 

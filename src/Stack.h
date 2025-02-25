@@ -1,15 +1,11 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
-
 #ifndef C_STACK_H
 #define C_STACK_H
 /********************************************/
 /*Stack Functions
 /********************************************/
+
 #define STACK_SIZE 16
+
 typedef struct stack
 {
 	int top;

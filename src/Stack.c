@@ -1,4 +1,11 @@
 #include "Stack.h"
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <time.h>
+
 //Stack for chip8
 void init_stack(Stack* stack)
 {

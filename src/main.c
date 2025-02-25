@@ -29,8 +29,6 @@ int main(int argc, char* argv[])
 	//Init rest
 	int loop_counter = 0;
 	bool old = true;
-	uint32_t* pixels = malloc(
-		(DISPLAY_HEIGHT * DISPLAY_WIDTH) * sizeof(uint32_t));
 
 	/********************************************************************************/
 	/*		                 Program Loop					*/
