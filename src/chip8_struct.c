@@ -1,5 +1,7 @@
 #include "chip8_struct.h"
 
+#include <stdio.h>
+
 //Initialises chip8
 void init_chip8(Chip8* chip8)
 {
@@ -10,6 +12,9 @@ void init_chip8(Chip8* chip8)
 	chip8->i_reg = 0;
 	chip8->opcode = 0;
 
+	chip8->loop_counter = 0;
+
+	chip8->old_instruction = true;
 	chip8->draw_flag = false;
 
 	//Load font into memory

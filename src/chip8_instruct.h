@@ -4,9 +4,9 @@
 #include "chip8_struct.h"
 
 void opcode00E0(Chip8* chip8);							//Sets Display to 0's
-void opcode00EE(Chip8* chip8, Stack* stack);							//Returns from address at top of stack
+void opcode00EE(Chip8* chip8, Stack* stack);					//Returns from address at top of stack
 void opcode1NNN(Chip8* chip8);							//Sets p_c to NNN
-void opcode2NNN(Chip8* chip8, Stack* stack);							//Pushes current p_c to stack and jumps to NNN
+void opcode2NNN(Chip8* chip8, Stack* stack);					//Pushes current p_c to stack and jumps to NNN
 void opcode3XNN(Chip8* chip8);							//skips one instruction if vx == NN
 void opcode4XNN(Chip8* chip8);							//skips one instruction if vx != NN
 void opcode5XY0(Chip8* chip8);							//skips one instruction if vx == vy
@@ -33,8 +33,8 @@ void opcodeFX15(Chip8* chip8);							//Sets delay_timer to value of var_reg[vx]
 void opcodeFX18(Chip8* chip8);							//Sets sound_timer to value of var_reg[vx]
 void opcodeFX29(Chip8* chip8);
 void opcodeFX33(Chip8* chip8);							//Binary coded decimal conversion
-void opcodeFX55(Chip8* chip8, bool old);					//Loads var_reg into memory
-void opcodeFX65(Chip8* chip8, bool old);					//Loads memory into v[0] to v[X]
+void opcodeFX55(Chip8* chip8);							//Loads var_reg into memory
+void opcodeFX65(Chip8* chip8);							//Loads memory into v[0] to v[X]
 void opcodeFX1E(Chip8* chip8);							//Adds var_reg[vx] to i_reg
 void opcodeFX0A(Chip8* chip8);							//Gets key
 #endif//CHIP_8_INSTRUCTIONS_H

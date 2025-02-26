@@ -1,4 +1,7 @@
 #include "Stack.h"
+
+#include <stdio.h>
+
 //Stack for chip8
 void init_stack(Stack* stack)
 {

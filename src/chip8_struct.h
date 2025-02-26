@@ -46,6 +46,9 @@ typedef struct chip8
 	uint16_t i_reg;
 	uint16_t opcode;
 
+	int loop_counter;
+
+	bool old_instruction;
 	bool draw_flag;
 }Chip8;
 
