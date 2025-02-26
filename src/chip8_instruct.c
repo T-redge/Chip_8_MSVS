@@ -349,7 +349,7 @@ void opcodeFX33(Chip8* chip8)
 	chip8->memory[chip8->i_reg + 1] = tmp_two;
 	chip8->memory[chip8->i_reg + 2] = tmp_three;
 }
-void opcodeFX55(Chip8* chip8, bool old)
+void opcodeFX55(Chip8* chip8)
 {
 	uint8_t vx = (chip8->opcode & 0x0F00) >> 8;
 	uint16_t tmp = chip8->i_reg;
@@ -358,11 +358,11 @@ void opcodeFX55(Chip8* chip8, bool old)
 		++chip8->i_reg;
 	}
 	
-	if (!old) {
+	if (!chip8->old_instruction) {
 		chip8->i_reg = tmp;
 	}
 }
-void opcodeFX65(Chip8* chip8, bool old)
+void opcodeFX65(Chip8* chip8)
 {
 	uint8_t vx = (chip8->opcode & 0x0F00) >> 8;
 	uint16_t tmp = chip8->i_reg;
@@ -371,7 +371,7 @@ void opcodeFX65(Chip8* chip8, bool old)
 		++chip8->i_reg;
 	}
 	
-	if (!old) {
+	if (!chip8->old_instruction) {
 		chip8->i_reg = tmp;
 	}
 }

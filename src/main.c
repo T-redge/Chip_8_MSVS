@@ -1,6 +1,7 @@
 /*
 *	CHIP_8 Interpretor + Rendering Capabilities
 */
+#include <time.h>
 #include "SDLwindow.h"
 
 int main(int argc, char* argv[])
@@ -10,11 +11,6 @@ int main(int argc, char* argv[])
 	/********************************************************************************/
 	/*		                 Initialisation					*/
 	/********************************************************************************/
-	if (!init()) {
-		printf("Failed to initialize SDL!\n");
-		return EXIT_FAILURE;
-	}
-
 	Stack stack;
 	init_stack(&stack);
 
@@ -22,21 +18,18 @@ int main(int argc, char* argv[])
 	init_chip8(&chip8);
 	load_rom(&chip8);
 
+	SDL sdl;
+	init_sdl(&sdl);
+
 	//Init Rand
 	srand((unsigned)time(NULL));
 	int rand_var = (rand() % (255 - 0 + 1)) + 0;
 
-	//Init rest
-	int loop_counter = 0;
-	bool old = true;
-
 	/********************************************************************************/
 	/*		                 Program Loop					*/
 	/********************************************************************************/
-	bool running = true;
-	SDL_Event e;
 	
-	while (running) {
+	while (sdl.running_flag) {
 		//Fetch
 		chip8.opcode = get_opcode(&chip8);
 
@@ -51,7 +44,6 @@ int main(int argc, char* argv[])
 					opcode00EE(&chip8, &stack);
 					break;
 				default:
-					printf("Opcode not recognised!\n");
 					return EXIT_FAILURE;
 				}
 				break;
@@ -160,11 +152,11 @@ int main(int argc, char* argv[])
 					//running = false;
 					break;
 				case 0x55:
-					opcodeFX55(&chip8, old);
+					opcodeFX55(&chip8);
 					//running = false;
 					break;
 				case 0x65:
-					opcodeFX65(&chip8, old);
+					opcodeFX65(&chip8);
 					//running = false;
 					break;
 				case 0x0A:
@@ -184,28 +176,28 @@ int main(int argc, char* argv[])
 				printf("Opcode not recognised!\n");
 				return EXIT_FAILURE;
 		}
-		++loop_counter;
+		++chip8.loop_counter;
 
 		//Event Handling
-		event_handler(&e, &running, &chip8);
+		event_handler(&sdl, &chip8);
 
 		//Drawing to screen
 		if (chip8.draw_flag == true) {
-			buffer(pixels, &chip8);
-			render(pixels);
+			buffer(&sdl, &chip8);
+			render(&sdl);
 			chip8.draw_flag = false;
 		}
 
 		//Updating timers
-		if (loop_counter == 8) {
+		if (chip8.loop_counter == 8) {
 			update_timers(&chip8);
-			loop_counter = 0;
+			chip8.loop_counter = 0;
 		}
 		//Delay to slow executing loop
 		SDL_Delay(1);
 	} 
-	free(pixels);
-	quit();
+	free(sdl.pixels);
+	quit(&sdl);
 	return EXIT_SUCCESS;
 }
 

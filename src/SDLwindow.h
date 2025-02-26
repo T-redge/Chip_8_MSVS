@@ -31,7 +31,7 @@ void event_handler(SDL* sdl, Chip8* chip8);
 //SDL2 buffer fucntion
 void buffer(SDL* sdl, Chip8* chip8);
 //SDL2 render function
-void render(SDL* sdl, uint32_t *pixels);
+void render(SDL* sdl);
 //Plays sound
 void play_beep(SDL* sdl);
 //SDL2 clean up function

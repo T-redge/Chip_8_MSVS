@@ -1,6 +1,6 @@
 #include "SDLwindow.h"
 
-#include <stdbool.h>
+#include <stdio.h>
 
 bool init_sdl(SDL* sdl)
 {
@@ -182,9 +182,9 @@ void buffer(SDL* sdl, Chip8* chip8)
 		for (int x = 0; x < DISPLAY_WIDTH; x++)
 			sdl->pixels[(y * DISPLAY_WIDTH) + x] = (0xFFFFFF00 * chip8->display[x][y]) | 0x000000FF;
 }
-void render(SDL* sdl, uint32_t *pixels)
+void render(SDL* sdl)
 {
-	SDL_UpdateTexture(sdl->texture, NULL, pixels, DISPLAY_WIDTH * sizeof(uint32_t));
+	SDL_UpdateTexture(sdl->texture, NULL, sdl->pixels, DISPLAY_WIDTH * sizeof(uint32_t));
 	SDL_RenderClear(sdl->renderer);
 	SDL_RenderCopy(sdl->renderer, sdl->texture, NULL, NULL);
 	SDL_RenderPresent(sdl->renderer);
