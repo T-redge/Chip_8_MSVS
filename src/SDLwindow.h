@@ -2,8 +2,6 @@
 #define SDL_WINDOW_H
 
 #include "chip8_instruct.h"
-
-
 #include <SDL.h>
 #include <SDL_mixer.h>
 

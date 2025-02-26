@@ -1,5 +1,9 @@
 #ifndef C_STACK_H
 #define C_STACK_H
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 /********************************************/
 /*Stack Functions
 /********************************************/
