@@ -67,23 +67,22 @@ int main(int argc, char* argv[])
 	init_sdl(&sdl);
 
 /************************************ Loop ************************************/
-  while (sdl.running_flag) {
-	/****************************** Chip8Interpretor ******************************/
-	chip8_interpreter(&chip8, &stack);
+	while (sdl.running_flag) {
+		/****************************** Chip8Interpretor ******************************/
+		chip8_interpreter(&chip8, &stack);
 
-	/******************************* Event Handling *******************************/
-	event_handler(&sdl, &chip8);
+		/******************************* Event Handling *******************************/
+		event_handler(&sdl, &chip8);
 
-	/************************************ Draw ************************************/
-	render(&sdl, &chip8);
+		/************************************ Draw ************************************/
+		render(&sdl, &chip8);
 
-	/*********************************** Timers ***********************************/
-	update_timers(&chip8);
+		/*********************************** Timers ***********************************/
+		update_timers(&chip8);
 
-	//Delay to slow executing loop
-	SDL_Delay(1);
-	} 
-	free(sdl.pixels);
+		//Delay to slow executing loop
+		SDL_Delay(1);
+	}
 	quit(&sdl);
 	return EXIT_SUCCESS;
 }

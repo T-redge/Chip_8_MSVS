@@ -239,6 +239,8 @@ void play_beep(SDL* sdl)
 }
 void quit(SDL* sdl)
 {
+	free(sdl->pixels);
+
 	Mix_FreeChunk(sdl->beep);
 	SDL_DestroyTexture(sdl->texture);
 	SDL_DestroyRenderer(sdl->renderer);
