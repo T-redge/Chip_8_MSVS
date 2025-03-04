@@ -34,10 +34,12 @@ static uint8_t font[FONT_SIZE] = {
 };
 
 typedef struct _Chip8 Chip8;
+typedef struct _Stack Stack;
 
 void init_chip8(Chip8* chip8);
 void load_rom(Chip8* chip8);
 uint16_t get_opcode(Chip8* chip8);
+void chip8_interpreter(Chip8* chip8, Stack* stack);
 void update_timers(Chip8* chip8);
 
 #endif//CHIP_8_STRUCT_H

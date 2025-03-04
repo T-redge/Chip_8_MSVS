@@ -222,12 +222,16 @@ void buffer(SDL* sdl, Chip8* chip8)
 		for (int x = 0; x < DISPLAY_WIDTH; x++)
 			sdl->pixels[(y * DISPLAY_WIDTH) + x] = (0xFFFFFF00 * chip8->display[x][y]) | 0x000000FF;
 }
-void render(SDL* sdl)
+void render(SDL* sdl, Chip8* chip8)
 {
-	SDL_UpdateTexture(sdl->texture, NULL, sdl->pixels, DISPLAY_WIDTH * sizeof(uint32_t));
-	SDL_RenderClear(sdl->renderer);
-	SDL_RenderCopy(sdl->renderer, sdl->texture, NULL, NULL);
-	SDL_RenderPresent(sdl->renderer);
+	if (chip8->draw_flag == true) {
+		buffer(sdl, chip8);
+		SDL_UpdateTexture(sdl->texture, NULL, sdl->pixels, DISPLAY_WIDTH * sizeof(uint32_t));
+		SDL_RenderClear(sdl->renderer);
+		SDL_RenderCopy(sdl->renderer, sdl->texture, NULL, NULL);
+		SDL_RenderPresent(sdl->renderer);
+		chip8->draw_flag = false;
+	}
 }
 void play_beep(SDL* sdl)
 {

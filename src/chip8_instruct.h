@@ -25,7 +25,7 @@ void opcode8XY7(Chip8* chip8);							//Sets vx to vy - vx var_reg16 set if vy >=
 void opcode9XY0(Chip8* chip8);							//skips one instruction if vx != vy
 void opcodeANNN(Chip8* chip8);							//Sets I_reg to NNN
 void opcodeBNNN(Chip8* chip8);							//Jumps to address NNN plus value of V0
-void opcodeCXNN(Chip8* chip8, int random_number);				//Sets vx to NN binaryAND random number
+void opcodeCXNN(Chip8* chip8);							//Sets vx to NN binaryAND random number
 void opcodeDXYN(Chip8* chip8); 							//Display
 void opcodeEX9E(Chip8* chip8);							//Skips one instruction if key[vx] is pressed
 void opcodeEXA1(Chip8* chip8);							//Skips one instruction if key[vx] is not pressed

@@ -3,6 +3,7 @@
 #include "Stack.h"
 
 #include <stdbool.h>
+#include <time.h>
 
 struct _Chip8
 {
@@ -231,12 +232,12 @@ void opcodeBNNN(Chip8* chip8)
 
 
 }
-void opcodeCXNN(Chip8* chip8, int  random_number)
+void opcodeCXNN(Chip8* chip8)
 {
 	uint8_t vx = (chip8->opcode & 0x0F00) >> 8;
 	uint8_t nn = chip8->opcode & 0x00FF;
 
-	chip8->var_reg[vx] = nn & random_number;
+	chip8->var_reg[vx] = nn & (rand() % 255);
 }
 void opcodeDXYN(Chip8* chip8)
 {
