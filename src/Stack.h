@@ -2,23 +2,14 @@
 #define C_STACK_H
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
+
+
 /********************************************/
 /*Stack Functions
 /********************************************/
-
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdint.h>
-
 #define STACK_SIZE 16
 
-typedef struct Stack
-{
-	int top;
-	uint16_t mem_address[STACK_SIZE];
-}Stack;
+typedef struct _Stack Stack;
 
 void init_stack(Stack* stack);
 static int full_stack(Stack* stack);

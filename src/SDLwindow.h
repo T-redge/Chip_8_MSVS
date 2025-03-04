@@ -1,27 +1,10 @@
 #ifndef SDL_WINDOW_H
 #define SDL_WINDOW_H
 
-#include "chip8_instruct.h"
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <stdbool.h>
 
-typedef struct SDL {
-	SDL_Window* window;
-	SDL_Texture* texture;
-	SDL_Renderer* renderer;
-	Mix_Chunk* beep;
-
-	SDL_Event event;
-
-	uint32_t* pixels;
-
-	int video_width;
-	int video_height;
-	int video_scale;
-
-	bool running_flag;
-}SDL;
-
+typedef struct _Chip8 Chip8;
+typedef struct _SDL SDL;
 //SDL2 init function
 bool init_sdl(SDL* sdl);
 //SDL2 event function

@@ -1,6 +1,12 @@
 #include "Stack.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+
+struct _Stack {
+	int top;
+	uint16_t mem_address[STACK_SIZE];
+};
 
 //Stack for chip8
 void init_stack(Stack* stack)

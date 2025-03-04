@@ -1,6 +1,27 @@
 #include "chip8_struct.h"
 
 #include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+struct _Chip8
+{
+	uint8_t memory[MEMORY_SIZE];
+	uint8_t display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
+	uint8_t var_reg[REGISTER_SIZE];
+	uint8_t keys[KEYS_SIZE];
+	uint8_t delay_timer;
+	uint8_t sound_timer;
+
+	uint16_t p_c;
+	uint16_t i_reg;
+	uint16_t opcode;
+
+	int loop_counter;
+
+	bool old_instruction;
+	bool draw_flag;
+};
 
 //Initialises chip8
 void init_chip8(Chip8* chip8)
